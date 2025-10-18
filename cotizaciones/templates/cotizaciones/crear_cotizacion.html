@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block title %}Finalizar Cotización - Tejos Olímpica{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">Finalizar Cotización</h2>
+    
+    <div class="row">
+        <div class="col-md-8">
+            <!-- Productos seleccionados -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Productos Seleccionados</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-striped mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Producto</th>
+                                    <th>Cantidad</th>
+                                    <th>Precio Unitario</th>
+                                    <th>Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in items %}
+                                <tr>
+                                    <td>{{ item.producto.nombre }}</td>
+                                    <td>{{ item.cantidad }}</td>
+                                    <td>${{ item.producto.precio|floatformat:0 }}</td>
+                                    <td>${{ item.subtotal|floatformat:0 }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr class="table-active">
+                                    <td colspan="3" class="text-end"><strong>TOTAL:</strong></td>
+                                    <td><strong>${{ total|floatformat:0 }}</strong></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <!-- Formulario para finalizar la cotización -->
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Completar Solicitud</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.notas_cliente.id_for_label }}">¿Alguna nota adicional?</label>
+                            {{ form.notas_cliente }}
+                        </div>
+                        
+                        <div class="alert alert-info small">
+                            <p><i class="fas fa-info-circle me-2"></i>Al enviar esta solicitud, nuestro equipo revisará tu cotización y te contactará con los precios finales.</p>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-paper-plane me-2"></i>Enviar Cotización
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

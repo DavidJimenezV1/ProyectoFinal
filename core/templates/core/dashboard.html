@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Tejos Olímpica{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4">Dashboard Administrativo</h1>
+    
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card bg-primary text-white">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Total Productos</h5>
+                    <h2 class="mb-0">{{ total_productos }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-success text-white">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Clientes Registrados</h5>
+                    <h2 class="mb-0">{{ total_clientes }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-warning text-dark">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Productos Sin Stock</h5>
+                    <h2 class="mb-0">{{ productos_sin_stock }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Pedidos Recientes</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Cliente</th>
+                                    <th>Fecha</th>
+                                    <th>Total</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for pedido in pedidos_recientes %}
+                                <tr>
+                                    <td>{{ pedido.id }}</td>
+                                    <td>{{ pedido.cliente.get_full_name }}</td>
+                                    <td>{{ pedido.fecha_creacion|date:"d/m/Y" }}</td>
+                                    <td>${{ pedido.total }}</td>
+                                    <td>
+                                        <span class="badge bg-{% if pedido.estado == 'pendiente' %}warning{% elif pedido.estado == 'en_proceso' %}info{% elif pedido.estado == 'completado' %}success{% elif pedido.estado == 'cancelado' %}danger{% endif %}">
+                                            {{ pedido.get_estado_display }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center py-3">No hay pedidos recientes</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <a href="#" class="btn btn-sm btn-outline-primary">Ver todos los pedidos</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <!-- Aquí podrías añadir gráficos, etc. -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Accesos Rápidos</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        <a href="/admin/inventario/producto/" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                            Gestionar Productos
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                        <a href="/admin/pedidos/pedido/" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                            Gestionar Pedidos
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                        <a href="/admin/usuarios/usuario/" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                            Gestionar Usuarios
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
