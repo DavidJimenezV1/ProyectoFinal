@@ -56,7 +56,7 @@
                                 <tr>
                                     <td>{{ pedido.id }}</td>
                                     <td>{{ pedido.cliente.get_full_name }}</td>
-                                    <td>{{ pedido.fecha_creacion|date:"d/m/Y" }}</td>
+                                    <td>{{ pedido.fecha_pedido|date:"d/m/Y" }}</td>
                                     <td>${{ pedido.total }}</td>
                                     <td>
                                         <span class="badge bg-{% if pedido.estado == 'pendiente' %}warning{% elif pedido.estado == 'en_proceso' %}info{% elif pedido.estado == 'completado' %}success{% elif pedido.estado == 'cancelado' %}danger{% endif %}">

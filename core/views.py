@@ -50,7 +50,7 @@ class AdminDashboard(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
         context['productos_sin_stock'] = Producto.objects.filter(stock=0).count()
         
         # Pedidos recientes
-        context['pedidos_recientes'] = Pedido.objects.all().order_by('-fecha_creacion')[:5]
+        context['pedidos_recientes'] = Pedido.objects.all().order_by('-fecha_pedido')[:5]
         
         return context
 
