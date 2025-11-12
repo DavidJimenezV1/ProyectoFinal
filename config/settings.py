@@ -146,3 +146,12 @@ MESSAGE_TAGS = {
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'home'
+# Configuración de Email para recuperación de contraseña
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # Para desarrollo (muestra en consola)
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'  # Para producción
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'tu-email@gmail.com'  # Cambia esto por tu email
+EMAIL_HOST_PASSWORD = 'tu-contraseña-app'  # Cambia esto por tu contraseña de aplicación
+DEFAULT_FROM_EMAIL = 'tu-email@gmail.com'

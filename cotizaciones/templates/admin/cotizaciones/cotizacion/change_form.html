@@ -1,0 +1,184 @@
+{% extends "admin/change_form.html" %}
+{% load static %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <style>
+        .recalcular-btn {
+            background-color: #417690 !important;
+            color: white !important;
+            padding: 5px 10px !important;
+            border-radius: 3px !important;
+            border: none !important;
+            cursor: pointer !important;
+            font-size: 12px !important;
+        }
+        .recalcular-btn:hover {
+            background-color: #2d5178 !important;
+        }
+        .recalcular-all-btn {
+            background-color: #28a745 !important;
+            color: white !important;
+            padding: 10px 15px !important;
+            border-radius: 4px !important;
+            border: none !important;
+            cursor: pointer !important;
+            font-size: 14px !important;
+            margin-bottom: 15px !important;
+            display: block !important;
+        }
+        .recalcular-all-btn:hover {
+            background-color: #218838 !important;
+        }
+        .total-section {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 15px;
+            border-left: 4px solid #28a745;
+        }
+        .total-label {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        #total-display {
+            font-size: 24px;
+            font-weight: bold;
+            color: #28a745;
+            display: inline-block;
+        }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            function actualizarSubtotal(fila) {
+                const cantidadInput = fila.querySelector('input[name*="cantidad"]');
+                const precioInput = fila.querySelector('input[name*="precio_unitario"]');
+                
+                if (cantidadInput && precioInput) {
+                    const cantidadValue = parseFloat(cantidadInput.value) || 0;
+                    const precioValue = parseFloat(precioInput.value) || 0;
+                    let subtotal = cantidadValue * precioValue;
+                    
+                    // Aplicar IVA si está marcado
+                    const incluirIvaCheckbox = document.getElementById('id_incluir_iva');
+                    if (incluirIvaCheckbox && incluirIvaCheckbox.checked) {
+                        subtotal = subtotal * 1.19;
+                    }
+                    
+                    // Buscar la celda de subtotal
+                    const subtotalCell = fila.querySelector('.field-subtotal_display');
+                    
+                    if (subtotalCell) {
+                        const formatted = '$' + subtotal.toLocaleString('es-CO', {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                        });
+                        
+                        subtotalCell.innerHTML = formatted;
+                        
+                        // Animación visual
+                        subtotalCell.style.backgroundColor = '#fff3cd';
+                        setTimeout(() => {
+                            subtotalCell.style.backgroundColor = '';
+                        }, 500);
+                    }
+                }
+            }
+            
+            function actualizarTotal() {
+                // Calcular subtotal de todos los items
+                let subtotalFinal = 0;
+                const filas = document.querySelectorAll('tr[id^="items-"]');
+                
+                filas.forEach(fila => {
+                    // Ignorar la fila vacía
+                    if (!fila.id.includes('empty')) {
+                        const cantidadInput = fila.querySelector('input[name*="cantidad"]');
+                        const precioInput = fila.querySelector('input[name*="precio_unitario"]');
+                        
+                        if (cantidadInput && precioInput) {
+                            const cantidadValue = parseFloat(cantidadInput.value) || 0;
+                            const precioValue = parseFloat(precioInput.value) || 0;
+                            subtotalFinal += cantidadValue * precioValue;
+                        }
+                    }
+                });
+                
+                // Aplicar IVA si está marcado
+                let totalConIva = subtotalFinal;
+                const incluirIvaCheckbox = document.getElementById('id_incluir_iva');
+                if (incluirIvaCheckbox && incluirIvaCheckbox.checked) {
+                    totalConIva = subtotalFinal * 1.19;
+                }
+                
+                // Actualizar el display del total
+                const totalDisplay = document.getElementById('total-display');
+                if (totalDisplay) {
+                    const formatted = '$' + totalConIva.toLocaleString('es-CO', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    });
+                    
+                    totalDisplay.innerHTML = formatted;
+                    
+                    // Animación visual
+                    totalDisplay.style.backgroundColor = '#d4edda';
+                    setTimeout(() => {
+                        totalDisplay.style.backgroundColor = '';
+                    }, 500);
+                }
+            }
+            
+            function recalcularTodos() {
+                // Buscar todas las filas de items
+                const filas = document.querySelectorAll('tr[id^="items-"]');
+                filas.forEach(fila => {
+                    // Ignorar la fila vacía
+                    if (!fila.id.includes('empty')) {
+                        actualizarSubtotal(fila);
+                    }
+                });
+                // Actualizar el total final
+                actualizarTotal();
+            }
+            
+            // Botón para recalcular todos
+            const btnRecalcularTodos = document.querySelector('.recalcular-all-btn');
+            if (btnRecalcularTodos) {
+                btnRecalcularTodos.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    recalcularTodos();
+                });
+            }
+            
+            // Botones individuales
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('recalcular-btn')) {
+                    e.preventDefault();
+                    const fila = e.target.closest('tr');
+                    actualizarSubtotal(fila);
+                    actualizarTotal();
+                }
+            });
+            
+            // Listener para cambios en el checkbox de IVA
+            const incluirIvaCheckbox = document.getElementById('id_incluir_iva');
+            if (incluirIvaCheckbox) {
+                incluirIvaCheckbox.addEventListener('change', actualizarTotal);
+            }
+        });
+    </script>
+{% endblock %}
+
+{% block submit_buttons_bottom %}
+    <div style="margin-bottom: 20px;">
+        <button type="button" class="recalcular-all-btn">🔄 Recalcular Todos los Subtotales</button>
+        <div class="total-section">
+            <div class="total-label">Total Final de la Cotización:</div>
+            <div id="total-display">$0,00</div>
+        </div>
+    </div>
+    {{ block.super }}
+{% endblock %}

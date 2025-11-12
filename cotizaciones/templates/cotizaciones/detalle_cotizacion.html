@@ -103,17 +103,23 @@
             </div>
             
             <!-- Botones de Acción -->
+                        <!-- Botones de Acción -->
             <div class="mt-4">
                 <a href="{% url 'cotizaciones:lista_cotizaciones' %}" class="btn btn-outline-secondary">
                     <i class="fas fa-arrow-left me-2"></i>Volver a Cotizaciones
                 </a>
-                
+
+                <!-- Botón Descargar PDF -->
+                <a href="{% url 'cotizaciones:descargar_pdf' cotizacion.id %}" class="btn btn-danger ms-2" target="_blank">
+                    <i class="fas fa-file-pdf me-2"></i>Descargar PDF
+                </a>
+
                 {% if user.es_admin and cotizacion.estado == 'pendiente' %}
                     <a href="{% url 'cotizaciones:responder_cotizacion' cotizacion.id %}" class="btn btn-success ms-2">
                         <i class="fas fa-reply me-2"></i>Responder Cotización
                     </a>
                 {% endif %}
-                
+
                 {% if cotizacion.estado == 'aprobada' %}
                     <a href="#" class="btn btn-primary ms-2">
                         <i class="fas fa-shopping-cart me-2"></i>Realizar Pedido

@@ -32,25 +32,39 @@ def ver_carrito(request):
     })
 
 def agregar_producto(request, producto_id):
-    """Añadir un producto al carrito"""
+    """Mostrar formulario para seleccionar cantidad antes de agregar al carrito"""
     producto = get_object_or_404(Producto, id=producto_id)
-    carrito = request.session.get('carrito', {})
     
-    # Convertir la clave a string porque JSON solo permite claves string
-    producto_id = str(producto_id)
+    if request.method == 'POST':
+        # El usuario envió la cantidad
+        cantidad = int(request.POST.get('cantidad', 1))
+        
+        if cantidad <= 0:
+            messages.error(request, 'La cantidad debe ser mayor a 0')
+            return redirect('carrito:agregar', producto_id=producto_id)
+        
+        # Agregar al carrito
+        carrito = request.session.get('carrito', {})
+        producto_id_str = str(producto_id)
+        
+        if producto_id_str in carrito:
+            carrito[producto_id_str] += cantidad
+        else:
+            carrito[producto_id_str] = cantidad
+        
+        request.session['carrito'] = carrito
+        messages.success(request, f'{producto.nombre} x{cantidad} añadido al carrito')
+        
+        # Redirigir de vuelta a donde vino
+        next_url = request.POST.get('next', request.GET.get('next', 'catalogo:lista_productos'))
+        return redirect(next_url)
     
-    # Incrementar cantidad o agregar producto
-    if producto_id in carrito:
-        carrito[producto_id] += 1
-    else:
-        carrito[producto_id] = 1
-    
-    request.session['carrito'] = carrito
-    messages.success(request, f'{producto.nombre} añadido al carrito (${producto.precio})')
-    
-    # Redirigir de vuelta a la página anterior o al catálogo
+    # GET: Mostrar formulario pidiendo cantidad
     next_url = request.GET.get('next', 'catalogo:lista_productos')
-    return redirect(next_url)
+    return render(request, 'carrito/seleccionar_cantidad.html', {
+        'producto': producto,
+        'next': next_url
+    })
 
 def eliminar_producto(request, producto_id):
     """Eliminar un producto del carrito"""

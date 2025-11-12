@@ -10,9 +10,9 @@ class Cotizacion(models.Model):
         ('rechazada', 'Rechazada'),
         ('convertida', 'Convertida a pedido'),
     ]
-    
+
     cliente = models.ForeignKey(
-        settings.AUTH_USER_MODEL, 
+        settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name='cotizaciones',
         verbose_name="Cliente"
@@ -20,62 +20,78 @@ class Cotizacion(models.Model):
     fecha_solicitud = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de solicitud")
     fecha_respuesta = models.DateTimeField(null=True, blank=True, verbose_name="Fecha de respuesta")
     estado = models.CharField(
-        max_length=20, 
-        choices=ESTADO_CHOICES, 
+        max_length=20,
+        choices=ESTADO_CHOICES,
         default='pendiente',
         verbose_name="Estado"
     )
     notas_cliente = models.TextField(blank=True, verbose_name="Notas del cliente")
     notas_admin = models.TextField(blank=True, verbose_name="Notas del administrador")
     vigencia = models.IntegerField(default=15, verbose_name="Días de vigencia")
-    
+    incluir_iva = models.BooleanField(default=True, verbose_name="Incluir IVA (19%)")
+
     class Meta:
         verbose_name = "Cotización"
         verbose_name_plural = "Cotizaciones"
         ordering = ['-fecha_solicitud']
-        
+
     def __str__(self):
         return f"Cotización #{self.id} - {self.cliente.get_full_name()}"
-        
+
+    @property
+    def subtotal_sin_iva(self):
+        """Calcula el subtotal sin IVA"""
+        return sum(item.subtotal for item in self.items.all())
+
+    @property
+    def iva(self):
+        """Calcula el IVA (19%)"""
+        from decimal import Decimal
+        if self.incluir_iva:
+            return self.subtotal_sin_iva * Decimal('0.19')
+        return Decimal('0')
+
+
     @property
     def total(self):
-        """Calcula el total de la cotización sumando todos los items"""
-        return sum(item.subtotal for item in self.items.all())
-        
+        """Calcula el total incluyendo IVA si está habilitado"""
+        return self.subtotal_sin_iva + self.iva
+
     @property
     def num_items(self):
         """Devuelve el número de items en la cotización"""
         return self.items.count()
-    
+
+
 class DetalleCotizacion(models.Model):
     cotizacion = models.ForeignKey(
-        Cotizacion, 
+        Cotizacion,
         related_name='items',
         on_delete=models.CASCADE,
         verbose_name="Cotización"
     )
     producto = models.ForeignKey(
-        Producto, 
+        Producto,
         on_delete=models.PROTECT,
         verbose_name="Producto"
     )
     cantidad = models.PositiveIntegerField(default=1, verbose_name="Cantidad")
     precio_unitario = models.DecimalField(
-        max_digits=10, 
-        decimal_places=2, 
-        blank=True, 
+        max_digits=10,
+        decimal_places=2,
+        blank=True,
         null=True,
         verbose_name="Precio unitario"
     )
     notas = models.CharField(max_length=255, blank=True, verbose_name="Notas específicas")
-    
+
     class Meta:
         verbose_name = "Detalle de cotización"
         verbose_name_plural = "Detalles de cotización"
-        
+
     def __str__(self):
         return f"{self.cantidad} x {self.producto.nombre}"
-        
+
     @property
     def subtotal(self):
         """Calcula el subtotal del item (precio x cantidad)"""
