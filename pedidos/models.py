@@ -22,19 +22,25 @@ class Pedido(models.Model):
         ('completado', 'Completado'),
         ('cancelado', 'Cancelado'),
     ]
-    
+
     cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE, verbose_name="Cliente")
     fecha_pedido = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de pedido")
     fecha_entrega = models.DateField(null=True, blank=True, verbose_name="Fecha de entrega")
     estado = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='pendiente', verbose_name="Estado")
     observaciones = models.TextField(blank=True, null=True, verbose_name="Observaciones")
-    
+
+    # MÉTODO CORREGIDO CON LA SANGRÍA CORRECTA
+    def get_total(self):
+        total = sum(item.subtotal() for item in self.detallepedido_set.all())
+        return total
+
     class Meta:
         verbose_name = "Pedido"
         verbose_name_plural = "Pedidos"
-    
+
     def __str__(self):
         return f"Pedido #{self.id} - {self.cliente}"
+
 
 class DetallePedido(models.Model):
     pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE, verbose_name="Pedido")

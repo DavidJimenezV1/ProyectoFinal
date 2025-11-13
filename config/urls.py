@@ -34,6 +34,8 @@ urlpatterns = [
     path('carrito/', include('carrito.urls', namespace='carrito')),
     path('cotizaciones/', include('cotizaciones.urls', namespace='cotizaciones')),
     
+    path('pedidos/', include('pedidos.visual_urls')),
+    
     # Incluir las URLs de inventario (incluye la nueva API de precios)
     path('', include('inventario.urls')),
     
