@@ -1,3 +1,5 @@
+app_name = 'usuarios'
+
 from django.urls import path
 from .views import RegistroClienteView, login_view, logout_view, perfil_usuario
 
