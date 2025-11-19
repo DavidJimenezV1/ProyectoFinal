@@ -54,58 +54,7 @@
       .collapse-panel-background .nav-search .form-control { flex: 1; }
       .collapse-panel-background .nav-search .btn { width: 44px; }
     }
-  
-/* ---- Mobile visibility fixes: improve contrast for user menu, dropdown items and carrito icon ---- */
-@media (max-width: 991.98px) {
-
-  /* Dropdown items (Mi perfil / Panel Admin / Cerrar sesión) — texto blanco y fondo semitransparente al hover */
-  .collapse-panel-background .dropdown-item {
-    color: #ffffff !important;
-    background: transparent;
-  }
-  .collapse-panel-background .dropdown-item:hover {
-    background: rgba(255,255,255,0.06);
-    color: #ffffff !important;
-  }
-
-  /* User dropdown toggle (botón que muestra MarthaRozo) — borde ligeramente visible y texto blanco */
-  .collapse-panel-background .btn-outline-secondary {
-    color: #ffffff !important;
-    border-color: rgba(255,255,255,0.18) !important;
-    background: transparent !important;
-  }
-  .collapse-panel-background .btn-outline-secondary:hover,
-  .collapse-panel-background .btn-outline-secondary:focus {
-    color: #ffffff !important;
-    background: rgba(255,255,255,0.04) !important;
-  }
-
-  /* Asegurar que los nav-links y botones del panel son blancos y legibles */
-  .collapse-panel-background .nav-link {
-    color: rgba(255,255,255,0.95) !important;
-  }
-  .collapse-panel-background .nav-link:hover {
-    color: #ffffff !important;
-  }
-
-  /* Hacemos que el icono del carrito tenga un fondo blanco pequeño para que destaque (como en desktop) */
-  .collapse-panel-background a[aria-label="Carrito"] .fs-5 {
-    background: #ffffff;
-    color: var(--brand);
-    padding: .18rem .28rem;
-    border-radius: .28rem;
-    display: inline-block;
-    line-height: 1;
-  }
-
-  /* Ajuste del badge para que se vea correctamente sobre el panel azul */
-  .collapse-panel-background .badge {
-    box-shadow: 0 0 0 3px rgba(0,0,0,0.05);
-    transform: translate(0, -6px);
-  }
-}
-
-</style>
+  </style>
 
   {% block head %}{% endblock %}
 </head>
@@ -147,7 +96,7 @@
 
                 <div class="d-flex align-items-center ms-lg-3 mt-2 mt-lg-0">
                   <a class="nav-link position-relative me-3 p-0" href="{% url 'carrito:ver_carrito' %}" aria-label="Carrito">
-                    <svg class="icon-cart" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" style="vertical-align:middle; fill:currentColor;"><path d="M7 4h-2l-1 2h2.2l1.6 7.2c.1.4.5.8.9.8h7.6l1.2-5H9.4L8.2 6H19V4H7zM7 20a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm10 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/></svg>
+                    <span class="text-decoration-none text-dark fs-5">🛒</span>
                     {% if request.session.carrito %}
                       <span class="badge bg-danger badge-cart">{{ request.session.carrito|length }}</span>
                     {% endif %}

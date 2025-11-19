@@ -147,7 +147,7 @@
 
                 <div class="d-flex align-items-center ms-lg-3 mt-2 mt-lg-0">
                   <a class="nav-link position-relative me-3 p-0" href="{% url 'carrito:ver_carrito' %}" aria-label="Carrito">
-                    <svg class="icon-cart" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" style="vertical-align:middle; fill:currentColor;"><path d="M7 4h-2l-1 2h2.2l1.6 7.2c.1.4.5.8.9.8h7.6l1.2-5H9.4L8.2 6H19V4H7zM7 20a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm10 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/></svg>
+                    <span class="text-decoration-none text-dark fs-5">🛒</span>
                     {% if request.session.carrito %}
                       <span class="badge bg-danger badge-cart">{{ request.session.carrito|length }}</span>
                     {% endif %}
