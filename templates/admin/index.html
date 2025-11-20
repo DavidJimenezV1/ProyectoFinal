@@ -1,0 +1,174 @@
+{% extends "admin/index.html" %}
+{% load static %}
+
+{% block content %}
+<!-- Welcome Banner -->
+<div style="background: linear-gradient(135deg, #FF6B35 0%, #FF6B9D 100%); 
+            padding: 30px; 
+            border-radius: 15px; 
+            margin-bottom: 30px; 
+            color: white;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            animation: slideDown 0.6s ease-out;">
+    <h1 style="margin: 0; font-size: 2.5em; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);">
+        🎯 ¡Bienvenido al Panel de Administración!
+    </h1>
+    <p style="margin: 15px 0 0; font-size: 1.2em; opacity: 0.95;">
+        Gestiona tu negocio de manera fácil, colorida y divertida
+    </p>
+</div>
+
+<!-- Dashboard Statistics -->
+<div class="dashboard-stats" style="margin-bottom: 30px;">
+    <div class="stat-card" style="background: linear-gradient(135deg, #FF6B35 0%, #FF8C55 100%); color: white;">
+        <div class="stat-icon">👥</div>
+        <div class="stat-value" id="usuarios-count">-</div>
+        <div class="stat-label">Usuarios</div>
+    </div>
+    
+    <div class="stat-card" style="background: linear-gradient(135deg, #4ECDC4 0%, #6EDDDC 100%); color: white;">
+        <div class="stat-icon">📦</div>
+        <div class="stat-value" id="productos-count">-</div>
+        <div class="stat-label">Productos</div>
+    </div>
+    
+    <div class="stat-card" style="background: linear-gradient(135deg, #44AF69 0%, #64CF89 100%); color: white;">
+        <div class="stat-icon">🛒</div>
+        <div class="stat-value" id="pedidos-count">-</div>
+        <div class="stat-label">Pedidos</div>
+    </div>
+    
+    <div class="stat-card" style="background: linear-gradient(135deg, #9B59B6 0%, #BB79D6 100%); color: white;">
+        <div class="stat-icon">💰</div>
+        <div class="stat-value" id="ventas-count">-</div>
+        <div class="stat-label">Ventas</div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div style="background: white; 
+            padding: 25px; 
+            border-radius: 15px; 
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);">
+    <h2 style="margin-top: 0; color: #2C3E50; font-size: 1.8em;">
+        ⚡ Acciones Rápidas
+    </h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+        <a href="/admin/usuarios/usuario/add/" 
+           class="button" 
+           style="text-align: center; padding: 20px !important; text-decoration: none; display: block;">
+            <i class="fas fa-user-plus" style="font-size: 2em; display: block; margin-bottom: 10px;"></i>
+            Nuevo Usuario
+        </a>
+        <a href="/admin/inventario/producto/add/" 
+           class="button" 
+           style="text-align: center; padding: 20px !important; text-decoration: none; display: block;
+                  background: linear-gradient(135deg, #4ECDC4 0%, #44AF69 100%) !important;">
+            <i class="fas fa-box" style="font-size: 2em; display: block; margin-bottom: 10px;"></i>
+            Nuevo Producto
+        </a>
+        <a href="/admin/pedidos/pedido/add/" 
+           class="button" 
+           style="text-align: center; padding: 20px !important; text-decoration: none; display: block;
+                  background: linear-gradient(135deg, #9B59B6 0%, #BB79D6 100%) !important;">
+            <i class="fas fa-shopping-cart" style="font-size: 2em; display: block; margin-bottom: 10px;"></i>
+            Nuevo Pedido
+        </a>
+        <a href="/admin/ventas/factura/add/" 
+           class="button" 
+           style="text-align: center; padding: 20px !important; text-decoration: none; display: block;
+                  background: linear-gradient(135deg, #F39C12 0%, #F5B041 100%) !important;">
+            <i class="fas fa-file-invoice-dollar" style="font-size: 2em; display: block; margin-bottom: 10px;"></i>
+            Nueva Factura
+        </a>
+    </div>
+</div>
+
+<!-- App List -->
+{{ block.super }}
+
+<script>
+// Load dashboard statistics
+document.addEventListener('DOMContentLoaded', function() {
+    fetch('/api/dashboard-stats/')
+        .then(response => response.json())
+        .then(data => {
+            if (data.usuarios !== undefined) {
+                document.getElementById('usuarios-count').textContent = data.usuarios;
+                animateCounter('usuarios-count', data.usuarios);
+            }
+            if (data.productos !== undefined) {
+                document.getElementById('productos-count').textContent = data.productos;
+                animateCounter('productos-count', data.productos);
+            }
+            if (data.pedidos !== undefined) {
+                document.getElementById('pedidos-count').textContent = data.pedidos;
+                animateCounter('pedidos-count', data.pedidos);
+            }
+            if (data.ventas !== undefined) {
+                document.getElementById('ventas-count').textContent = data.ventas;
+                animateCounter('ventas-count', data.ventas);
+            }
+        })
+        .catch(error => {
+            console.log('Stats loading error:', error);
+            // Set default values if API fails
+            document.getElementById('usuarios-count').textContent = '0';
+            document.getElementById('productos-count').textContent = '0';
+            document.getElementById('pedidos-count').textContent = '0';
+            document.getElementById('ventas-count').textContent = '0';
+        });
+});
+
+function animateCounter(elementId, target) {
+    const element = document.getElementById(elementId);
+    let current = 0;
+    const increment = target / 50;
+    const timer = setInterval(() => {
+        current += increment;
+        if (current >= target) {
+            element.textContent = target;
+            clearInterval(timer);
+        } else {
+            element.textContent = Math.floor(current);
+        }
+    }, 20);
+}
+</script>
+
+<style>
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .stat-card {
+        animation: fadeInUp 0.6s ease-out;
+        animation-fill-mode: both;
+    }
+    
+    .stat-card:nth-child(1) { animation-delay: 0.1s; }
+    .stat-card:nth-child(2) { animation-delay: 0.2s; }
+    .stat-card:nth-child(3) { animation-delay: 0.3s; }
+    .stat-card:nth-child(4) { animation-delay: 0.4s; }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+{% endblock %}
