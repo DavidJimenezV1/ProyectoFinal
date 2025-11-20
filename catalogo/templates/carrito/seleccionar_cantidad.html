@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Seleccionar Cantidad - Tejos Olímpica{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h2 class="card-title mb-4">
+                        {% if producto.imagen %}
+                            <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" 
+                                 style="max-width: 100px; margin-right: 10px;">
+                        {% endif %}
+                        {{ producto.nombre }}
+                    </h2>
+                    
+                    <div class="alert alert-info">
+                        <strong>Precio unitario:</strong> ${{ producto.precio|floatformat:2 }}
+                    </div>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="form-group mb-4">
+                            <label for="cantidad" class="form-label">
+                                <strong>¿Cuántos deseas agregar?</strong>
+                            </label>
+                            <div class="input-group">
+                                <button type="button" class="btn btn-outline-secondary" id="btn-menos">−</button>
+                                <input type="number" id="cantidad" name="cantidad" value="1" min="1" 
+                                       class="form-control text-center" style="font-weight: bold; font-size: 1.2em;">
+                                <button type="button" class="btn btn-outline-secondary" id="btn-mas">+</button>
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-warning">
+                            <strong id="subtotal-label">Subtotal: $0.00</strong>
+                        </div>
+                        
+                        <input type="hidden" name="next" value="{{ next }}">
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                🛒 Agregar al Carrito
+                            </button>
+                            <a href="{{ next }}" class="btn btn-secondary btn-lg">
+                                Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const inputCantidad = document.getElementById('cantidad');
+    const btnMas = document.getElementById('btn-mas');
+    const btnMenos = document.getElementById('btn-menos');
+    const subtotalLabel = document.getElementById('subtotal-label');
+    const precioUnitario = {{ producto.precio|safe }};
+    
+    function actualizarSubtotal() {
+        const cantidad = parseInt(inputCantidad.value) || 1;
+        const subtotal = (precioUnitario * cantidad).toFixed(2);
+        subtotalLabel.textContent = `Subtotal: $${subtotal}`;
+    }
+    
+    btnMas.addEventListener('click', () => {
+        inputCantidad.value = parseInt(inputCantidad.value) + 1;
+        actualizarSubtotal();
+    });
+    
+    btnMenos.addEventListener('click', () => {
+        if (inputCantidad.value > 1) {
+            inputCantidad.value = parseInt(inputCantidad.value) - 1;
+            actualizarSubtotal();
+        }
+    });
+    
+    inputCantidad.addEventListener('change', actualizarSubtotal);
+    actualizarSubtotal();
+</script>
+{% endblock %}

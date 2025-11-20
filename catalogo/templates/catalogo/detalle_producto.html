@@ -1,0 +1,186 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ producto.nombre }} - Tejos Olímpica{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.css">
+<style>
+    .swiper {
+        width: 100%;
+        height: 400px;
+        margin-bottom: 20px;
+    }
+    .swiper-slide {
+        text-align: center;
+        background: #f8f9fa;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .swiper-slide img {
+        max-width: 100%;
+        max-height: 380px;
+        object-fit: contain;
+    }
+    .thumbnail {
+        cursor: pointer;
+        opacity: 0.6;
+        transition: opacity 0.3s;
+        height: 80px;
+        object-fit: cover;
+    }
+    .thumbnail:hover, .thumbnail.active {
+        opacity: 1;
+        border: 2px solid #007bff;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Inicio</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'catalogo:lista_productos' %}">Productos</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ producto.nombre }}</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="card-title">{{ producto.nombre }}</h2>
+                    <h6 class="card-subtitle mb-3 text-muted">Código: {{ producto.codigo }}</h6>
+                    
+                    <!-- Carrusel de imágenes -->
+                    {% if producto.imagenes.exists %}
+                        <div class="swiper my-4">
+                            <div class="swiper-wrapper">
+                                {% for img in producto.imagenes.all %}
+                                    <div class="swiper-slide">
+                                        <img src="{{ img.imagen.url }}" alt="{{ img.titulo|default:producto.nombre }}">
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            <div class="swiper-pagination"></div>
+                            <div class="swiper-button-prev"></div>
+                            <div class="swiper-button-next"></div>
+                        </div>
+                        
+                        <!-- Miniaturas -->
+                        <div class="row mt-3 mb-4">
+                            {% for img in producto.imagenes.all %}
+                                <div class="col-2 mb-2">
+                                    <img src="{{ img.imagen.url }}" 
+                                        class="img-thumbnail thumbnail {% if forloop.first %}active{% endif %}" 
+                                        alt="{{ img.titulo|default:'Miniatura' }}" 
+                                        data-index="{{ forloop.counter0 }}">
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center my-4">
+                            <img src="https://via.placeholder.com/600x400?text=Sin+Imagen" alt="Sin imagen" class="img-fluid rounded">
+                        </div>
+                    {% endif %}
+                    
+                    <h5 class="mt-4">Descripción:</h5>
+                    <p class="card-text">{{ producto.descripcion }}</p>
+                    
+                    <div class="mt-4">
+                        <h5>Especificaciones:</h5>
+                        <ul class="list-group">
+                            <li class="list-group-item">
+                                <strong>Categoría:</strong> {{ producto.categoria.nombre }}
+                            </li>
+                            <li class="list-group-item">
+                                <strong>Stock:</strong> 
+                                {% if producto.stock > 0 %}
+                                    <span class="text-success">Disponible ({{ producto.stock }} unidades)</span>
+                                {% else %}
+                                    <span class="text-danger">Agotado</span>
+                                {% endif %}
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title">Precio</h4>
+                    <h2 class="text-primary mb-4">${{ producto.precio|floatformat:0 }}</h2>
+                    
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'carrito:agregar' producto.id %}?next={% url 'catalogo:detalle_producto' producto.id %}" class="btn btn-primary">
+                            <i class="fas fa-cart-plus me-2"></i>Añadir al Carrito
+                        </a>
+                        <a href="{% url 'cotizaciones:nueva_cotizacion' %}?producto_id={{ producto.id }}" class="btn btn-outline-primary">
+                            <i class="fas fa-clipboard-list me-2"></i>Solicitar Cotización Formal
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Compartir en redes sociales -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    Compartir
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-around">
+                        <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}" 
+                           target="_blank" class="btn btn-sm btn-outline-primary">
+                            <i class="fab fa-facebook-f"></i> Facebook
+                        </a>
+                        <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}&text={{ producto.nombre }}" 
+                           target="_blank" class="btn btn-sm btn-outline-info">
+                            <i class="fab fa-twitter"></i> Twitter
+                        </a>
+                        <a href="https://wa.me/?text={{ producto.nombre }} - {{ request.build_absolute_uri }}" 
+                           target="_blank" class="btn btn-sm btn-outline-success">
+                            <i class="fab fa-whatsapp"></i> WhatsApp
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Inicializar el carrusel
+        const swiper = new Swiper('.swiper', {
+            loop: true,
+            pagination: {
+                el: '.swiper-pagination',
+                clickable: true
+            },
+            navigation: {
+                nextEl: '.swiper-button-next',
+                prevEl: '.swiper-button-prev',
+            }
+        });
+        
+        // Configurar las miniaturas
+        const thumbnails = document.querySelectorAll('.thumbnail');
+        thumbnails.forEach(thumb => {
+            thumb.addEventListener('click', function() {
+                const index = parseInt(this.dataset.index);
+                swiper.slideTo(index + 1);
+                
+                // Marcar la miniatura activa
+                thumbnails.forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+    });
+</script>
+{% endblock %}

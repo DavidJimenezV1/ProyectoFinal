@@ -1,0 +1,166 @@
+{% extends 'base.html' %}
+
+{% block title %}Responder Cotización #{{ cotizacion.id }} - Tejos Olímpica{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Inicio</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'cotizaciones:lista_cotizaciones' %}">Cotizaciones</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'cotizaciones:detalle_cotizacion' cotizacion.id %}">Cotización #{{ cotizacion.id }}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Responder</li>
+        </ol>
+    </nav>
+    
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0">Responder Cotización #{{ cotizacion.id }}</h3>
+        </div>
+        <div class="card-body">
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <h5>Información del Cliente</h5>
+                    <p><strong>Cliente:</strong> {{ cotizacion.cliente.get_full_name }}</p>
+                    <p><strong>Email:</strong> {{ cotizacion.cliente.email }}</p>
+                    <p><strong>Teléfono:</strong> {{ cotizacion.cliente.telefono|default:"No especificado" }}</p>
+                </div>
+                <div class="col-md-6">
+                    <h5>Información de la Solicitud</h5>
+                    <p><strong>Fecha de solicitud:</strong> {{ cotizacion.fecha_solicitud|date:"d/m/Y H:i" }}</p>
+                    <p><strong>Estado actual:</strong> <span class="badge bg-warning">{{ cotizacion.get_estado_display }}</span></p>
+                </div>
+            </div>
+            
+            <!-- Notas del Cliente -->
+            {% if cotizacion.notas_cliente %}
+                <div class="alert alert-light">
+                    <h5>Notas del Cliente:</h5>
+                    <p>{{ cotizacion.notas_cliente }}</p>
+                </div>
+            {% endif %}
+            
+            <form method="post">
+                {% csrf_token %}
+                
+                <!-- Tabla de Productos con precios a establecer -->
+                <h5 class="mt-4">Productos Solicitados</h5>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th>Cantidad</th>
+                                <th>Precio Estándar</th>
+                                <th>Precio Cotizado</th>
+                                <th>Subtotal</th>
+                                <th>Notas</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in cotizacion.items.all %}
+                                <tr>
+                                    <td>
+                                        <a href="{% url 'catalogo:detalle_producto' item.producto.id %}">
+                                            {{ item.producto.nombre }}
+                                        </a>
+                                        <small class="text-muted d-block">{{ item.producto.codigo }}</small>
+                                    </td>
+                                    <td>{{ item.cantidad }}</td>
+                                    <td>${{ item.producto.precio|floatformat:2 }}</td>
+                                    <td>
+                                        <input 
+                                            type="number" 
+                                            name="precio_{{ item.id }}" 
+                                            class="form-control precio-input" 
+                                            value="{{ item.precio_unitario|default:item.producto.precio }}"
+                                            step="0.01"
+                                            min="0"
+                                            data-cantidad="{{ item.cantidad }}"
+                                            data-item-id="{{ item.id }}"
+                                        >
+                                    </td>
+                                    <td>
+                                        <span id="subtotal_{{ item.id }}">${{ item.subtotal|floatformat:2 }}</span>
+                                    </td>
+                                    <td>{{ item.notas|default:"-" }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr class="table-active">
+                                <th colspan="4" class="text-end">Total:</th>
+                                <th id="total-cotizacion">${{ cotizacion.total|floatformat:2 }}</th>
+                                <th></th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="vigencia">Vigencia de la cotización (días):</label>
+                            <input type="number" name="vigencia" id="vigencia" class="form-control" value="{{ cotizacion.vigencia }}" min="1" max="90">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="estado">Estado de la cotización:</label>
+                            <select name="estado" id="estado" class="form-control">
+                                <option value="revisada" {% if cotizacion.estado == 'revisada' %}selected{% endif %}>Revisada</option>
+                                <option value="aprobada" {% if cotizacion.estado == 'aprobada' %}selected{% endif %}>Aprobada</option>
+                                <option value="rechazada" {% if cotizacion.estado == 'rechazada' %}selected{% endif %}>Rechazada</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <label for="notas_admin">Respuesta al cliente:</label>
+                    <textarea name="notas_admin" id="notas_admin" rows="5" class="form-control">{{ cotizacion.notas_admin }}</textarea>
+                </div>
+                
+                <div class="text-center mt-4">
+                    <a href="{% url 'cotizaciones:detalle_cotizacion' cotizacion.id %}" class="btn btn-outline-secondary me-2">
+                        <i class="fas fa-times me-2"></i>Cancelar
+                    </a>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-paper-plane me-2"></i>Enviar Respuesta
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Calcular subtotales y total cuando cambian los precios
+    const precioInputs = document.querySelectorAll('.precio-input');
+    const totalElement = document.getElementById('total-cotizacion');
+    
+    const calcularTotal = () => {
+        let total = 0;
+        
+        precioInputs.forEach(input => {
+            const precio = parseFloat(input.value) || 0;
+            const cantidad = parseInt(input.getAttribute('data-cantidad')) || 0;
+            const itemId = input.getAttribute('data-item-id');
+            const subtotal = precio * cantidad;
+            
+            document.getElementById(`subtotal_${itemId}`).textContent = `$${subtotal.toFixed(2)}`;
+            total += subtotal;
+        });
+        
+        totalElement.textContent = `$${total.toFixed(2)}`;
+    };
+    
+    precioInputs.forEach(input => {
+        input.addEventListener('input', calcularTotal);
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+
+{% block title %}Cotización #{{ cotizacion.id }} - Tejos Olímpica{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Inicio</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'cotizaciones:lista_cotizaciones' %}">Cotizaciones</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Cotización #{{ cotizacion.id }}</li>
+        </ol>
+    </nav>
+    
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <div class="d-flex justify-content-between align-items-center">
+                <h3 class="mb-0">Cotización #{{ cotizacion.id }}</h3>
+                <span class="badge {% if cotizacion.estado == 'pendiente' %}bg-warning{% elif cotizacion.estado == 'revisada' %}bg-info{% elif cotizacion.estado == 'aprobada' %}bg-success{% elif cotizacion.estado == 'rechazada' %}bg-danger{% else %}bg-primary{% endif %}">
+                    {{ cotizacion.get_estado_display }}
+                </span>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <h5>Información del Cliente</h5>
+                    <p><strong>Cliente:</strong> {{ cotizacion.cliente.get_full_name }}</p>
+                    <p><strong>Email:</strong> {{ cotizacion.cliente.email }}</p>
+                    <p><strong>Teléfono:</strong> {{ cotizacion.cliente.telefono|default:"No especificado" }}</p>
+                </div>
+                <div class="col-md-6">
+                    <h5>Información de la Cotización</h5>
+                    <p><strong>Fecha de solicitud:</strong> {{ cotizacion.fecha_solicitud|date:"d/m/Y H:i" }}</p>
+                    {% if cotizacion.fecha_respuesta %}
+                        <p><strong>Fecha de respuesta:</strong> {{ cotizacion.fecha_respuesta|date:"d/m/Y H:i" }}</p>
+                    {% endif %}
+                    <p><strong>Vigencia:</strong> {{ cotizacion.vigencia }} días</p>
+                </div>
+            </div>
+            
+            <!-- Notas del Cliente -->
+            {% if cotizacion.notas_cliente %}
+                <div class="alert alert-light">
+                    <h5>Notas del Cliente:</h5>
+                    <p>{{ cotizacion.notas_cliente }}</p>
+                </div>
+            {% endif %}
+            
+            <!-- Respuesta del Administrador -->
+            {% if cotizacion.notas_admin %}
+                <div class="alert alert-info">
+                    <h5>Respuesta de Tejos Olímpica:</h5>
+                    <p>{{ cotizacion.notas_admin }}</p>
+                </div>
+            {% endif %}
+            
+            <!-- Tabla de Productos -->
+            <h5 class="mt-4">Productos Solicitados</h5>
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Cantidad</th>
+                            <th>Precio Unitario</th>
+                            <th>Subtotal</th>
+                            <th>Notas</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in cotizacion.items.all %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'catalogo:detalle_producto' item.producto.id %}">
+                                        {{ item.producto.nombre }}
+                                    </a>
+                                    <small class="text-muted d-block">{{ item.producto.codigo }}</small>
+                                </td>
+                                <td>{{ item.cantidad }}</td>
+                                <td>
+                                    {% if item.precio_unitario %}
+                                        ${{ item.precio_unitario|floatformat:2 }}
+                                    {% elif cotizacion.estado == 'pendiente' %}
+                                        <span class="text-muted">Pendiente</span>
+                                    {% else %}
+                                        ${{ item.producto.precio|floatformat:2 }}
+                                    {% endif %}
+                                </td>
+                                <td>${{ item.subtotal|floatformat:2 }}</td>
+                                <td>{{ item.notas|default:"-" }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr class="table-active">
+                            <th colspan="3" class="text-end">Total:</th>
+                            <th>${{ cotizacion.total|floatformat:2 }}</th>
+                            <th></th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            
+            <!-- Botones de Acción -->
+                        <!-- Botones de Acción -->
+            <div class="mt-4">
+                <a href="{% url 'cotizaciones:lista_cotizaciones' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Volver a Cotizaciones
+                </a>
+
+                <!-- Botón Descargar PDF -->
+                <a href="{% url 'cotizaciones:descargar_pdf' cotizacion.id %}" class="btn btn-danger ms-2" target="_blank">
+                    <i class="fas fa-file-pdf me-2"></i>Descargar PDF
+                </a>
+
+                {% if user.es_admin and cotizacion.estado == 'pendiente' %}
+                    <a href="{% url 'cotizaciones:responder_cotizacion' cotizacion.id %}" class="btn btn-success ms-2">
+                        <i class="fas fa-reply me-2"></i>Responder Cotización
+                    </a>
+                {% endif %}
+
+                {% if cotizacion.estado == 'aprobada' %}
+                    <a href="#" class="btn btn-primary ms-2">
+                        <i class="fas fa-shopping-cart me-2"></i>Realizar Pedido
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

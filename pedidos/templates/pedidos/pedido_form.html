@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Editar Pedido {{ pedido.id }}{% endblock %}
+
+{% block content %}
+  <h2>Editar Pedido #{{ pedido.id }}</h2>
+  <form method="post">
+    {% csrf_token %}
+    <div class="mb-3">
+      {{ form.non_field_errors }}
+      {% for field in form %}
+        <div class="mb-2">
+          <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {{ field }}
+          {{ field.errors }}
+        </div>
+      {% endfor %}
+    </div>
+
+    <h4>Lineas</h4>
+    {{ formset.management_form }}
+    <table class="table">
+      <thead><tr><th>Producto</th><th>Cantidad</th><th>Precio</th><th>Eliminar</th></tr></thead>
+      <tbody>
+        {% for f in formset %}
+        <tr>
+          <td>{{ f.producto }}</td>
+          <td>{{ f.cantidad }}</td>
+          <td>{{ f.precio_unitario }}</td>
+          <td class="text-center">{{ f.DELETE }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <button class="btn btn-primary" type="submit">Guardar</button>
+    <a class="btn btn-secondary" href="{% url 'pedidos:detalle_pedido' pedido.id %}">Cancelar</a>
+  </form>
+{% endblock %}

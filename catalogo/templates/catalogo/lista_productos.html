@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+
+{% block title %}Catálogo de Productos - Tejos Olímpica{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">Catálogo de Productos</h2>
+
+    <!-- Filtros de productos -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            {% if request.GET.buscar %}
+                <div class="alert alert-info">
+                    Resultados para: <strong>{{ request.GET.buscar }}</strong>
+                    <a href="{% url 'catalogo:lista_productos' %}" class="float-end">Limpiar búsqueda</a>
+                </div>
+            {% endif %}
+        </div>
+        <div class="col-md-4">
+            <form method="get" class="d-flex">
+                <input type="text" name="buscar" class="form-control" placeholder="Buscar productos...">
+                <button type="submit" class="btn btn-primary ms-2">Buscar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Lista de productos -->
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        {% for producto in productos %}
+        <div class="col">
+            <div class="card h-100">
+                <!-- Imagen del producto -->
+                <div class="text-center p-2">
+                    {% if producto.imagenes.exists %}
+                        {% with img=producto.imagen_principal %}
+                            {% if img %}
+                                <img src="{{ img.imagen.url }}" class="card-img-top img-fluid" alt="{{ producto.nombre }}" style="height: 180px; object-fit: contain;">
+                            {% endif %}
+                        {% endwith %}
+                    {% else %}
+                        <img src="https://via.placeholder.com/300x200?text=Sin+Imagen" class="card-img-top img-fluid" alt="Sin imagen" style="height: 180px; object-fit: contain;">
+                    {% endif %}
+                </div>
+                
+                <div class="card-body">
+                    <h5 class="card-title">{{ producto.nombre }}</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">{{ producto.codigo }}</h6>
+                    <p class="card-text">{{ producto.descripcion|truncatechars:80 }}</p>
+                    
+                    <!-- Precio destacado -->
+                    <h4 class="text-primary mt-3">${{ producto.precio|floatformat:0 }}</h4>
+                    
+                    <div class="d-grid gap-2 mt-3">
+                        {% if producto.id %}
+                            <a href="{% url 'catalogo:detalle_producto' producto.id %}" class="btn btn-outline-primary">Ver Detalles</a>
+                            <a href="{% url 'carrito:agregar' producto.id %}?next={{ request.path }}" class="btn btn-primary">
+                                <i class="fas fa-cart-plus me-2"></i>Añadir al Carrito
+                            </a>
+                        {% else %}
+                            <button class="btn btn-outline-secondary" disabled>No disponible</button>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="card-footer text-muted">
+                    <small>Categoría: {{ producto.categoria.nombre }}</small>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center">
+            <div class="alert alert-info">
+                <h4>No hay productos disponibles</h4>
+                <p>En breve agregaremos más productos a nuestro catálogo.</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Paginación -->
+    {% if is_paginated %}
+    <nav aria-label="Page navigation" class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1">&laquo; Primera</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Anterior</a>
+                </li>
+            {% endif %}
+    
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ num }}</span>
+                    </li>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+    
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}">Siguiente</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Última &raquo;</a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}

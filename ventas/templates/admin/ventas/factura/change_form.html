@@ -1,0 +1,199 @@
+{% extends "admin/change_form.html" %}
+{% load static %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <style>
+        .recalcular-btn {
+            background-color: #417690 !important;
+            color: white !important;
+            padding: 5px 10px !important;
+            border-radius: 3px !important;
+            border: none !important;
+            cursor: pointer !important;
+            font-size: 12px !important;
+        }
+        .recalcular-btn:hover {
+            background-color: #2d5178 !important;
+        }
+        .recalcular-all-btn {
+            background-color: #28a745 !important;
+            color: white !important;
+            padding: 10px 15px !important;
+            border-radius: 4px !important;
+            border: none !important;
+            cursor: pointer !important;
+            font-size: 14px !important;
+            margin-bottom: 15px !important;
+            display: block !important;
+        }
+        .recalcular-all-btn:hover {
+            background-color: #218838 !important;
+        }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            function actualizarSubtotal(fila) {
+                const cantidadInput = fila.querySelector('input[name*="cantidad"]');
+                const precioInput = fila.querySelector('input[name*="precio_unitario"]');
+
+                if (cantidadInput && precioInput) {
+                    const cantidadValue = parseFloat(cantidadInput.value) || 0;
+                    const precioValue = parseFloat(precioInput.value) || 0;
+                    let subtotal = cantidadValue * precioValue;
+
+                    const subtotalTd = fila.querySelector('td.field-subtotal_display');
+
+                    if (subtotalTd) {
+                        const p = subtotalTd.querySelector('p');
+                        if (p) {
+                            const formatted = '$' + subtotal.toLocaleString('es-CO', {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                            });
+
+                            p.innerHTML = formatted;
+
+                            p.style.backgroundColor = '#fff3cd';
+                            setTimeout(() => {
+                                p.style.backgroundColor = '';
+                            }, 500);
+                        }
+                    }
+                }
+            }
+
+            function actualizarTotales() {
+                let subtotalFinal = 0;
+                const filas = document.querySelectorAll('tr.form-row.has_original.dynamic-items');
+
+                filas.forEach(fila => {
+                    const cantidadInput = fila.querySelector('input[name*="cantidad"]');
+                    const precioInput = fila.querySelector('input[name*="precio_unitario"]');
+
+                    if (cantidadInput && precioInput) {
+                        const cantidadValue = parseFloat(cantidadInput.value) || 0;
+                        const precioValue = parseFloat(precioInput.value) || 0;
+                        subtotalFinal += cantidadValue * precioValue;
+                    }
+                });
+
+                const conIvaCheckbox = document.getElementById('id_con_iva');
+                const porcentajeInput = document.querySelector('input[name="porcentaje_iva"]');
+                const porcentaje = parseFloat(porcentajeInput?.value) || 0;
+
+                let valorIva = 0;
+                if (conIvaCheckbox && conIvaCheckbox.checked) {
+                    valorIva = subtotalFinal * (porcentaje / 100);
+                }
+
+                const totalFinal = subtotalFinal + valorIva;
+
+                console.log('Subtotal calculado:', subtotalFinal, 'IVA:', valorIva, 'Total:', totalFinal);
+
+                const subtotalField = document.getElementById('id_subtotal');
+                const valorIvaField = document.getElementById('id_valor_iva');
+                const totalField = document.getElementById('id_total');
+
+                if (subtotalField) {
+                    subtotalField.value = subtotalFinal;
+                    console.log('Actualizado id_subtotal a:', subtotalFinal);
+                }
+                if (valorIvaField) {
+                    valorIvaField.value = valorIva;
+                    console.log('Actualizado id_valor_iva a:', valorIva);
+                }
+                if (totalField) {
+                    totalField.value = totalFinal;
+                    console.log('Actualizado id_total a:', totalFinal);
+                }
+
+                const subtotalDisplay = document.getElementById('subtotal-display');
+                if (subtotalDisplay) {
+                    const formatted = '$' + subtotalFinal.toLocaleString('es-CO', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    });
+                    subtotalDisplay.innerHTML = formatted;
+                    subtotalDisplay.style.backgroundColor = '#fff3cd';
+                    setTimeout(() => {
+                        subtotalDisplay.style.backgroundColor = '';
+                    }, 500);
+                }
+
+                const valorIvaDisplay = document.getElementById('valor-iva-display');
+                if (valorIvaDisplay) {
+                    const formatted = '$' + valorIva.toLocaleString('es-CO', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    });
+                    valorIvaDisplay.innerHTML = formatted;
+                    valorIvaDisplay.style.backgroundColor = '#fff3cd';
+                    setTimeout(() => {
+                        valorIvaDisplay.style.backgroundColor = '';
+                    }, 500);
+                }
+
+                const totalDisplay = document.getElementById('total-display');
+                if (totalDisplay) {
+                    const formatted = '$' + totalFinal.toLocaleString('es-CO', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    });
+                    totalDisplay.innerHTML = formatted;
+                    totalDisplay.style.backgroundColor = '#d4edda';
+                    setTimeout(() => {
+                        totalDisplay.style.backgroundColor = '';
+                    }, 500);
+                }
+            }
+
+            function recalcularTodos() {
+                const filas = document.querySelectorAll('tr.form-row.has_original.dynamic-items');
+                console.log('Filas encontradas:', filas.length);
+
+                filas.forEach((fila, index) => {
+                    console.log('Procesando fila', index);
+                    actualizarSubtotal(fila);
+                });
+
+                actualizarTotales();
+            }
+
+            const btnRecalcularTodos = document.querySelector('.recalcular-all-btn');
+            if (btnRecalcularTodos) {
+                btnRecalcularTodos.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    recalcularTodos();
+                });
+            }
+
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('recalcular-btn')) {
+                    e.preventDefault();
+                    const fila = e.target.closest('tr');
+                    console.log('Recalculando fila individual');
+                    actualizarSubtotal(fila);
+                    actualizarTotales();
+                }
+            });
+
+            const conIvaCheckbox = document.getElementById('id_con_iva');
+            if (conIvaCheckbox) {
+                conIvaCheckbox.addEventListener('change', actualizarTotales);
+            }
+
+            const porcentajeInput = document.querySelector('input[name="porcentaje_iva"]');
+            if (porcentajeInput) {
+                porcentajeInput.addEventListener('change', actualizarTotales);
+            }
+        });
+    </script>
+{% endblock %}
+
+{% block submit_buttons_bottom %}
+    <div style="margin-bottom: 20px;">
+        <button type="button" class="recalcular-all-btn">🔄 Recalcular Todos los Subtotales</button>
+    </div>
+    {{ block.super }}
+{% endblock %}

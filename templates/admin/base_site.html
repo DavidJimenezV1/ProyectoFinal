@@ -1,0 +1,77 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}{% endblock %}</title>
+
+    <!-- Django Admin CSS -->
+    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/base.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/nav_sidebar.css' %}">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" type="text/css" href="{% static 'css/admin_dark.css' %}">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    {% block extrastyle %}{% endblock %}
+    
+    <script src="{% static 'admin/js/core.js' %}"></script>
+    {% block extrahead %}{% endblock %}
+</head>
+<body>
+
+<!-- Header -->
+<div id="header">
+    <div style="display: flex; justify-content: space-between; align-items: center; padding: 0 20px;">
+        <div>
+            <h1>
+                <a href="{% url 'admin:index' %}">
+                    🏆 Tejos Olímpica - Administración
+                </a>
+            </h1>
+        </div>
+        <div class="user-tools">
+            {% if user.is_active and user.is_staff %}
+                {{ user.get_full_name|default:user.username }}
+                | <a href="{% url 'admin:logout' %}">🚪 Cerrar sesión</a>
+            {% else %}
+                <a href="{% url 'admin:login' %}">Iniciar sesión</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Content -->
+<div id="container">
+    {% block messages %}
+        {% if messages %}
+        <ul class="messagelist">
+            {% for message in messages %}
+            <li class="{% if message.tags %}{{ message.tags }}{% endif %}">
+                {{ message|safe }}
+            </li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+    {% endblock %}
+
+    <div id="content-main">
+        {% block content %}{% endblock %}
+    </div>
+</div>
+
+<!-- Footer -->
+<div id="footer">
+    <p style="text-align: center; padding: 20px; color: #7f8c8d;">
+        &copy; 2025 Tejos Olímpica | Administración de Sistema
+    </p>
+</div>
+
+{% block extrajs %}{% endblock %}
+
+</body>
+</html>
