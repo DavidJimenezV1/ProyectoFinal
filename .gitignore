@@ -10,10 +10,15 @@ venv/
 
 # Django
 *.log
+*.sqlite3
 db.sqlite3
 db.sqlite3-journal
 media/
 staticfiles/
+static/admin/
+static/rest_framework/
+static/drf-yasg/
+static/js/
 
 # IDE
 .vscode/
