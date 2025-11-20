@@ -176,7 +176,7 @@ class ItemFacturaAdmin(admin.ModelAdmin):
     search_fields = ('factura__numero', 'producto__nombre')
     autocomplete_fields = ['producto', 'factura']
 
-# Cambiar el título del admin
-admin.site.site_header = 'Tejos Olímpica - Administración'
-admin.site.site_title = 'Tejos Olímpica'
-admin.site.index_title = 'Panel de Control'
+# Cambiar el título del admin con emojis
+admin.site.site_header = '🎯 Tejos Olímpica - Administración'
+admin.site.site_title = 'Tejos Olímpica Admin'
+admin.site.index_title = '🚀 Panel de Control Administrativo'
