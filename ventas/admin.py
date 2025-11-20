@@ -45,7 +45,7 @@ class ItemFacturaInline(admin.TabularInline):
 @admin.register(Factura)
 class FacturaAdmin(admin.ModelAdmin):
     inlines = [ItemFacturaInline]
-    list_display = ('numero', 'nombre_cliente', 'fecha_emision', 'mostrar_total', 'estado', 'con_iva', 'descargar_pdf_link')
+    list_display = ('numero_con_emoji', 'nombre_cliente', 'fecha_emision', 'mostrar_total', 'estado_con_emoji', 'con_iva', 'descargar_pdf_link')
     list_filter = ('estado', 'con_iva', 'fecha_emision')
     search_fields = ('numero', 'nombre_cliente', 'documento_cliente')
     readonly_fields = ('subtotal_display', 'valor_iva_display', 'total_display', 'fecha_creacion', 'fecha_actualizacion')
@@ -69,6 +69,33 @@ class FacturaAdmin(admin.ModelAdmin):
     def mostrar_total(self, obj):
         return format_html('<strong>${}</strong>', obj.total)
     mostrar_total.short_description = 'Total'
+    
+    def numero_con_emoji(self, obj):
+        """Muestra el número de factura con un emoji"""
+        return format_html('📄 <strong>{}</strong>', obj.numero)
+    numero_con_emoji.short_description = 'Número'
+    numero_con_emoji.admin_order_field = 'numero'
+    
+    def estado_con_emoji(self, obj):
+        """Muestra el estado con emoji y color"""
+        emojis = {
+            'pendiente': '⏳',
+            'pagada': '✅',
+            'cancelada': '❌'
+        }
+        colores = {
+            'pendiente': '#FFD60A',
+            'pagada': '#00B4A6',
+            'cancelada': '#E63946'
+        }
+        emoji = emojis.get(obj.estado, '❓')
+        color = colores.get(obj.estado, '#666')
+        return format_html(
+            '<span style="color: {}; font-weight: bold;">{} {}</span>',
+            color, emoji, obj.get_estado_display()
+        )
+    estado_con_emoji.short_description = 'Estado'
+    estado_con_emoji.admin_order_field = 'estado'
 
     def descargar_pdf_link(self, obj):
         """Muestra un enlace para descargar el PDF"""
@@ -165,8 +192,15 @@ class FacturaAdmin(admin.ModelAdmin):
         return custom_urls + urls
 
     class Media:
+        css = {
+            'all': (
+                'admin/css/admin_custom.css',
+                'admin/css/animations.css',
+            )
+        }
         js = (
             'js/factura_admin.js',
+            'admin/js/admin_custom.js',
         )
 
 @admin.register(ItemFactura)

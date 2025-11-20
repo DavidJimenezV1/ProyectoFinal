@@ -1,0 +1,241 @@
+{% extends "admin/base_site.html" %}
+{% load static i18n %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <style>
+        .dashboard-enhanced {
+            padding: 2rem 0;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            border-top: 4px solid;
+        }
+        
+        .stat-card.productos { border-top-color: #FF6B35; }
+        .stat-card.clientes { border-top-color: #004E89; }
+        .stat-card.ventas { border-top-color: #00B4A6; }
+        .stat-card.alertas { border-top-color: #E63946; }
+        
+        .stat-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+        }
+        
+        .stat-card-icon {
+            font-size: 3rem;
+            opacity: 0.2;
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        
+        .stat-card-content {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .stat-card-title {
+            font-size: 0.9rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-card-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-card-label {
+            font-size: 0.85rem;
+            color: #999;
+        }
+        
+        .quick-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .quick-link {
+            background: linear-gradient(135deg, #00B4A6 0%, #004E89 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .quick-link:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            color: white;
+        }
+        
+        .quick-link-icon {
+            font-size: 2.5rem;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+        
+        .app-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-enhanced">
+    <!-- Welcome Banner -->
+    <div class="welcome-banner stagger-item">
+        <h2 class="welcome-title">¡Bienvenido al Panel de Administración!</h2>
+        <p class="welcome-subtitle">Gestiona tu negocio de manera eficiente y moderna 🎯</p>
+    </div>
+    
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+        <div class="stat-card productos stagger-item hover-lift">
+            <div class="stat-card-icon">📦</div>
+            <div class="stat-card-content">
+                <div class="stat-card-title">Productos</div>
+                <div class="stat-card-value dashboard-card-value">{{ app_list|length|default:"0" }}</div>
+                <div class="stat-card-label">Total en inventario</div>
+            </div>
+        </div>
+        
+        <div class="stat-card clientes stagger-item hover-lift">
+            <div class="stat-card-icon">👥</div>
+            <div class="stat-card-content">
+                <div class="stat-card-title">Usuarios</div>
+                <div class="stat-card-value dashboard-card-value">0</div>
+                <div class="stat-card-label">Clientes registrados</div>
+            </div>
+        </div>
+        
+        <div class="stat-card ventas stagger-item hover-lift">
+            <div class="stat-card-icon">💰</div>
+            <div class="stat-card-content">
+                <div class="stat-card-title">Ventas</div>
+                <div class="stat-card-value dashboard-card-value">0</div>
+                <div class="stat-card-label">Este mes</div>
+            </div>
+        </div>
+        
+        <div class="stat-card alertas stagger-item hover-lift">
+            <div class="stat-card-icon">⚠️</div>
+            <div class="stat-card-content">
+                <div class="stat-card-title">Alertas</div>
+                <div class="stat-card-value dashboard-card-value">0</div>
+                <div class="stat-card-label">Stock bajo</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Links -->
+    <div class="quick-links">
+        <a href="{% url 'admin:ventas_factura_add' %}" class="quick-link stagger-item">
+            <span class="quick-link-icon">📝</span>
+            Nueva Factura
+        </a>
+        <a href="{% url 'admin:inventario_producto_add' %}" class="quick-link stagger-item">
+            <span class="quick-link-icon">➕</span>
+            Nuevo Producto
+        </a>
+        <a href="{% url 'admin:pedidos_pedido_changelist' %}" class="quick-link stagger-item">
+            <span class="quick-link-icon">📋</span>
+            Ver Pedidos
+        </a>
+        <a href="{% url 'admin:ventas_factura_changelist' %}" class="quick-link stagger-item">
+            <span class="quick-link-icon">💵</span>
+            Ver Facturas
+        </a>
+    </div>
+    
+    <!-- App List (módulos originales de Django) -->
+    <div class="app-list">
+        {% if app_list %}
+            {% for app in app_list %}
+                <div class="module stagger-item">
+                    <table>
+                        <caption>
+                            <a href="{{ app.app_url }}" class="section" title="{% blocktranslate with name=app.name %}Models in the {{ name }} application{% endblocktranslate %}">
+                                {{ app.name }}
+                            </a>
+                        </caption>
+                        {% for model in app.models %}
+                            <tr class="model-{{ model.object_name|lower }}">
+                                {% if model.admin_url %}
+                                    <th scope="row">
+                                        <a href="{{ model.admin_url }}">
+                                            {% if model.name == 'Facturas' %}📄{% endif %}
+                                            {% if model.name == 'Items de facturas' %}📋{% endif %}
+                                            {% if model.name == 'Productos' %}📦{% endif %}
+                                            {% if model.name == 'Categorías' %}🗂️{% endif %}
+                                            {% if model.name == 'Clientes' %}👤{% endif %}
+                                            {% if model.name == 'Pedidos' %}🛒{% endif %}
+                                            {% if model.name == 'Usuarios' %}👥{% endif %}
+                                            {{ model.name }}
+                                        </a>
+                                    </th>
+                                {% else %}
+                                    <th scope="row">{{ model.name }}</th>
+                                {% endif %}
+
+                                {% if model.add_url %}
+                                    <td><a href="{{ model.add_url }}" class="addlink">{% translate 'Add' %}</a></td>
+                                {% else %}
+                                    <td>&nbsp;</td>
+                                {% endif %}
+
+                                {% if model.admin_url and show_changelinks %}
+                                    <td><a href="{{ model.admin_url }}" class="changelink">{% translate 'Change' %}</a></td>
+                                {% else %}
+                                    <td>&nbsp;</td>
+                                {% endif %}
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p class="stagger-item">{% translate "You don't have permission to view or edit anything." %}</p>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    // Agregar animaciones escalonadas
+    document.addEventListener('DOMContentLoaded', function() {
+        const items = document.querySelectorAll('.stagger-item');
+        items.forEach(function(item, index) {
+            item.style.animationDelay = (index * 0.1) + 's';
+        });
+    });
+</script>
+{% endblock %}
