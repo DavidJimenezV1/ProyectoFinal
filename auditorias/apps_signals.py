@@ -3,6 +3,7 @@ Módulo para conectar automáticamente los signals de auditoría a todos los mod
 Este archivo es importado por apps.py cuando la aplicación está lista.
 """
 from django.apps import apps
+from django.conf import settings
 from .signals import conectar_signals_modelo
 
 
@@ -36,11 +37,14 @@ def conectar_signals_todas_apps():
         try:
             modelo = apps.get_model(app_label, model_name)
             conectar_signals_modelo(modelo)
-            print(f"✓ Signals de auditoría conectados para {app_label}.{model_name}")
+            if settings.DEBUG:
+                print(f"✓ Signals de auditoría conectados para {app_label}.{model_name}")
         except LookupError:
-            print(f"✗ Advertencia: No se pudo encontrar el modelo {app_label}.{model_name}")
+            if settings.DEBUG:
+                print(f"✗ Advertencia: No se pudo encontrar el modelo {app_label}.{model_name}")
         except Exception as e:
-            print(f"✗ Error al conectar signals para {app_label}.{model_name}: {e}")
+            if settings.DEBUG:
+                print(f"✗ Error al conectar signals para {app_label}.{model_name}: {e}")
 
 
 # Ejecutar la conexión de signals al importar este módulo
