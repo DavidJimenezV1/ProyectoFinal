@@ -59,10 +59,17 @@ def obtener_cambios(instance, campos_excluir=None):
 def guardar_estado_anterior(sender, instance, **kwargs):
     """
     Guarda el estado anterior de una instancia antes de que se actualice.
+    
+    Nota: Esta función realiza una consulta a la base de datos para obtener
+    el estado anterior del objeto. Esto es necesario para poder comparar
+    los cambios y registrarlos en la auditoría. Para sistemas con alta carga,
+    considere implementar un sistema de caché o usar select_related/prefetch_related
+    en las operaciones que disparen múltiples actualizaciones.
     """
     if instance.pk:  # Solo para actualizaciones
         try:
-            instancia_anterior = sender.objects.get(pk=instance.pk)
+            # Usar only() para cargar solo los campos necesarios y mejorar performance
+            instancia_anterior = sender.objects.only(*[f.name for f in instance._meta.fields]).get(pk=instance.pk)
             instance._state_antes = {}
             for field in instance._meta.fields:
                 instance._state_antes[field.name] = getattr(instancia_anterior, field.name)

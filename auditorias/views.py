@@ -1,6 +1,7 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib.contenttypes.models import ContentType
 from django.db.models import Count, Q
 from django.utils import timezone
 from datetime import timedelta
@@ -72,8 +73,6 @@ def detalle_auditoria(request, auditoria_id):
     """
     Vista de detalle de una auditoría específica.
     """
-    from django.shortcuts import get_object_or_404
-    
     auditoria = get_object_or_404(Auditoria, id=auditoria_id)
     
     # Obtener auditorías relacionadas con el mismo objeto
@@ -95,9 +94,6 @@ def historial_objeto(request, content_type_id, object_id):
     """
     Vista del historial completo de un objeto específico.
     """
-    from django.contrib.contenttypes.models import ContentType
-    from django.shortcuts import get_object_or_404
-    
     content_type = get_object_or_404(ContentType, id=content_type_id)
     
     auditorias = Auditoria.objects.filter(
