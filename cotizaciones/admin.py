@@ -3,20 +3,12 @@ from django.urls import reverse
 from django.utils.safestring import mark_safe
 from .models import Cotizacion, DetalleCotizacion
 
+
 class DetalleCotizacionInline(admin.TabularInline):
     model = DetalleCotizacion
     extra = 1
-    fields = ('producto', 'cantidad', 'precio_unitario', 'subtotal_display', 'notas', 'recalcular_btn')
-    readonly_fields = ('subtotal_display', 'recalcular_btn')
-    
-    def recalcular_btn(self, obj):
-        """Botón para recalcular el subtotal"""
-        return mark_safe(
-            '<button type="button" class="recalcular-btn" data-id="%s" '
-            'style="background-color: #417690; padding: 5px 10px; border-radius: 3px; '
-            'color: white; border: none; cursor: pointer;">🔄 Recalcular</button>' % (obj.pk if obj.pk else '')
-        )
-    recalcular_btn.short_description = 'Acción'
+    fields = ('producto', 'cantidad', 'precio_unitario', 'subtotal_display', 'notas')
+    readonly_fields = ('subtotal_display',)
     
     def subtotal_display(self, obj):
         """Muestra el subtotal calculado"""
@@ -30,6 +22,7 @@ class DetalleCotizacionInline(admin.TabularInline):
         return "---"
     subtotal_display.short_description = 'Subtotal'
 
+
 @admin.register(Cotizacion)
 class CotizacionAdmin(admin.ModelAdmin):
     list_display = ['id', 'cliente', 'fecha_solicitud', 'estado', 'total', 'num_items', 'acciones_list']
@@ -37,6 +30,7 @@ class CotizacionAdmin(admin.ModelAdmin):
     search_fields = ['cliente__username', 'cliente__first_name', 'cliente__last_name']
     date_hierarchy = 'fecha_solicitud'
     readonly_fields = ['fecha_solicitud', 'descargar_pdf_link', 'total_display']
+    inlines = [DetalleCotizacionInline]
 
     fieldsets = (
         ('Información General', {
@@ -51,16 +45,6 @@ class CotizacionAdmin(admin.ModelAdmin):
             'description': 'Acciones disponibles después de guardar la cotización'
         }),
     )
-
-    def get_inline_instances(self, request, obj=None):
-        """Muestra los inlines después de los fieldsets principales"""
-        return [DetalleCotizacionInline(self.model, self.admin_site)]
-
-    def change_view(self, request, object_id=None, form_url='', extra_context=None):
-        """Agrega un botón de recalcular todos en el contexto"""
-        extra_context = extra_context or {}
-        extra_context['show_recalcular_all'] = True
-        return super().change_view(request, object_id, form_url, extra_context)
 
     def acciones_list(self, obj):
         """Botones de acción en la lista del admin"""

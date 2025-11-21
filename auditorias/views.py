@@ -1,11 +1,12 @@
 from django.shortcuts import render
-from django.contrib.admin.views.decorators import staff_required
+from django.contrib.auth.decorators import login_required
 from django.db.models import Count, Q
 from django.utils import timezone
 from datetime import timedelta
 from auditorias.models import AuditLog
 
-@staff_required
+
+@login_required
 def dashboard_auditoria(request):
     """Dashboard de auditoría con estadísticas"""
     

@@ -55,7 +55,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django.middleware.locale.LocaleMiddleware',  # Para traducción
+    'django.middleware.locale.LocaleMiddleware',  
+    'middleware_auditoria.AuditoriaMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -71,6 +72,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'core.context_processors.variables_globales',  # ← AGREGAR ESTA LÍNEA
             ],
         },
     },
