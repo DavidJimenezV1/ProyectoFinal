@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'cotizaciones', 
     'carrito',
     'ventas',
+    'auditorias',  # Nueva app de auditoría
 ]
 
 MIDDLEWARE = [
@@ -55,6 +56,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.locale.LocaleMiddleware',  # Para traducción
+    'auditorias.middleware.CurrentUserMiddleware',  # Middleware de auditoría
 ]
 
 ROOT_URLCONF = 'config.urls'
