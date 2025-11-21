@@ -3,6 +3,8 @@ from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.http import HttpResponse
 from django.urls import path, reverse
+from datetime import datetime
+import csv
 from .models import Factura, ItemFactura
 from .utils import generar_pdf_factura
 
@@ -45,10 +47,14 @@ class ItemFacturaInline(admin.TabularInline):
 @admin.register(Factura)
 class FacturaAdmin(admin.ModelAdmin):
     inlines = [ItemFacturaInline]
-    list_display = ('numero', 'nombre_cliente', 'fecha_emision', 'mostrar_total', 'estado', 'con_iva', 'descargar_pdf_link')
+    list_display = ('numero_display', 'nombre_cliente', 'fecha_emision', 'mostrar_total', 'estado_badge', 'con_iva_display', 'descargar_pdf_link')
     list_filter = ('estado', 'con_iva', 'fecha_emision')
-    search_fields = ('numero', 'nombre_cliente', 'documento_cliente')
+    search_fields = ('numero', 'nombre_cliente', 'documento_cliente', 'email_cliente')
+    date_hierarchy = 'fecha_emision'
     readonly_fields = ('subtotal_display', 'valor_iva_display', 'total_display', 'fecha_creacion', 'fecha_actualizacion')
+    autocomplete_fields = ['cliente', 'vendedor']
+    list_per_page = 25
+    
     fieldsets = (
         ('Información de Factura', {
             'fields': (('numero', 'fecha_emision'), 'estado')
@@ -65,17 +71,59 @@ class FacturaAdmin(admin.ModelAdmin):
             'fields': ('notas', 'vendedor', ('fecha_creacion', 'fecha_actualizacion'))
         }),
     )
+    
+    actions = ['cambiar_a_pagada', 'cambiar_a_cancelada', 'exportar_csv']
+
+    def get_queryset(self, request):
+        """Optimizar consultas"""
+        qs = super().get_queryset(request)
+        return qs.select_related('cliente', 'vendedor').prefetch_related('items__producto')
+
+    def numero_display(self, obj):
+        """Muestra el número con formato destacado"""
+        return format_html('<strong style="font-size: 14px;">{}</strong>', obj.numero)
+    numero_display.short_description = 'Número'
+    numero_display.admin_order_field = 'numero'
+    
+    def estado_badge(self, obj):
+        """Muestra el estado con badge de colores"""
+        colors = {
+            'pendiente': '#ffc107',
+            'pagada': '#28a745',
+            'cancelada': '#dc3545',
+        }
+        return format_html(
+            '<span style="background-color: {}; color: white; padding: 5px 12px; border-radius: 15px; font-weight: bold;">{}</span>',
+            colors.get(obj.estado, '#6c757d'),
+            obj.get_estado_display()
+        )
+    estado_badge.short_description = 'Estado'
+    estado_badge.admin_order_field = 'estado'
+    
+    def con_iva_display(self, obj):
+        """Muestra si incluye IVA"""
+        if obj.con_iva:
+            return format_html('✅ Sí')
+        return format_html('❌ No')
+    con_iva_display.short_description = 'Con IVA'
 
     def mostrar_total(self, obj):
-        return format_html('<strong>${}</strong>', obj.total)
+        return format_html('<strong style="color: #28a745; font-size: 14px;">${:,.2f}</strong>', obj.total)
     mostrar_total.short_description = 'Total'
+    mostrar_total.admin_order_field = 'total'
 
     def descargar_pdf_link(self, obj):
         """Muestra un enlace para descargar el PDF"""
-        return format_html(
-            '<a class="button" href="{}" style="background-color: #417690; padding: 5px 10px; border-radius: 3px; color: white; text-decoration: none;">📥 PDF</a>',
-            reverse('admin:ventas_factura_descargar_pdf', args=[obj.pk])
-        )
+        if obj.pk:
+            try:
+                pdf_url = reverse('admin:ventas_factura_descargar_pdf', args=[obj.pk])
+                return format_html(
+                    '<a class="button" href="{}" style="background-color: #417690; padding: 5px 10px; border-radius: 3px; color: white; text-decoration: none;">📥 PDF</a>',
+                    pdf_url
+                )
+            except Exception:
+                return format_html('<span style="color: #dc3545;">Error generando enlace</span>')
+        return '-'
     descargar_pdf_link.short_description = 'Descargar'
 
     def subtotal_display(self, obj):
@@ -134,6 +182,42 @@ class FacturaAdmin(admin.ModelAdmin):
 
         # Recalcular totales de la factura
         form.instance.calcular_totales()
+    
+    # Acciones en lote
+    def cambiar_a_pagada(self, request, queryset):
+        """Marca facturas como pagadas"""
+        updated = queryset.update(estado='pagada')
+        self.message_user(request, f'{updated} factura(s) marcadas como "Pagada".')
+    cambiar_a_pagada.short_description = '✅ Marcar como Pagada'
+    
+    def cambiar_a_cancelada(self, request, queryset):
+        """Marca facturas como canceladas"""
+        updated = queryset.update(estado='cancelada')
+        self.message_user(request, f'{updated} factura(s) marcadas como "Cancelada".')
+    cambiar_a_cancelada.short_description = '❌ Marcar como Cancelada'
+    
+    def exportar_csv(self, request, queryset):
+        """Exportar facturas a CSV"""
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="facturas.csv"'
+        
+        writer = csv.writer(response)
+        writer.writerow(['Número', 'Cliente', 'Fecha', 'Estado', 'Subtotal', 'IVA', 'Total'])
+        
+        for factura in queryset:
+            writer.writerow([
+                factura.numero,
+                factura.nombre_cliente,
+                factura.fecha_emision.strftime('%Y-%m-%d %H:%M'),
+                factura.get_estado_display(),
+                factura.subtotal,
+                factura.valor_iva,
+                factura.total
+            ])
+        
+        self.message_user(request, f'{queryset.count()} facturas exportadas correctamente.')
+        return response
+    exportar_csv.short_description = '📥 Exportar a CSV'
 
     def descargar_pdf(self, request, object_id):
         """
