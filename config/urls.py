@@ -30,6 +30,7 @@ urlpatterns = [
     path('password-reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(template_name='password_reset_confirm.html'), name='password_reset_confirm'),
     path('password-reset-complete/', auth_views.PasswordResetCompleteView.as_view(template_name='password_reset_complete.html'), name='password_reset_complete'),
     path('dashboard/', AdminDashboard.as_view(), name='dashboard'),  # Dashboard administrativo
+    path('core/', include('core.urls')),
     path('admin/', admin.site.urls),  # Panel de administración de Django
     path('usuarios/', include(('usuarios.urls', 'usuarios'), namespace='usuarios')),
     path('catalogo/', include('catalogo.urls', namespace='catalogo')),

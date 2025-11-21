@@ -1,0 +1,137 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block title %}Panel de Control - Administración{% endblock %}
+
+{% block content %}
+
+<h1 style="color: #2c3e50; margin-bottom: 30px;">
+    📊 Panel de Control
+</h1>
+
+<!-- Dashboard Cards with REAL DATA from Database -->
+<div class="dashboard-grid">
+    <!-- Productos -->
+    <div class="dashboard-card card-orange">
+        <div class="card-header">
+            <div class="card-icon">📦</div>
+            <div>
+                <h3 class="card-title">Productos</h3>
+            </div>
+        </div>
+        <p class="card-value">{{ total_productos }}</p>
+        <p class="card-description">Productos en catálogo</p>
+        <div class="card-link">
+            <a href="/admin/inventario/producto/">Ver todos →</a>
+        </div>
+    </div>
+
+    <!-- Pedidos -->
+    <div class="dashboard-card card-blue">
+        <div class="card-header">
+            <div class="card-icon">📋</div>
+            <div>
+                <h3 class="card-title">Pedidos</h3>
+            </div>
+        </div>
+        <p class="card-value">{{ pedidos_pendientes }}</p>
+        <p class="card-description">Órdenes pendientes</p>
+        <div class="card-link">
+            <a href="/admin/pedidos/pedido/">Gestionar →</a>
+        </div>
+    </div>
+
+    <!-- Clientes -->
+    <div class="dashboard-card card-teal">
+        <div class="card-header">
+            <div class="card-icon">👥</div>
+            <div>
+                <h3 class="card-title">Clientes</h3>
+            </div>
+        </div>
+        <p class="card-value">{{ total_clientes }}</p>
+        <p class="card-description">Clientes registrados</p>
+        <div class="card-link">
+            <a href="/admin/usuarios/usuario/">Ver clientes →</a>
+        </div>
+    </div>
+
+    <!-- Ingresos -->
+    <div class="dashboard-card card-red">
+        <div class="card-header">
+            <div class="card-icon">💰</div>
+            <div>
+                <h3 class="card-title">Ingresos</h3>
+            </div>
+        </div>
+        <p class="card-value">${{ ingresos_totales|floatformat:0 }}</p>
+        <p class="card-description">Ingresos totales</p>
+        <div class="card-link">
+            <a href="/admin/pedidos/pedido/">Ver pedidos →</a>
+        </div>
+    </div>
+
+    <!-- Categorías -->
+    <div class="dashboard-card card-purple">
+        <div class="card-header">
+            <div class="card-icon">🏷️</div>
+            <div>
+                <h3 class="card-title">Categorías</h3>
+            </div>
+        </div>
+        <p class="card-value">{{ total_categorias }}</p>
+        <p class="card-description">Categorías de productos</p>
+        <div class="card-link">
+            <a href="/admin/catalogo/categoria/">Administrar →</a>
+        </div>
+    </div>
+
+    <!-- Cotizaciones -->
+    <div class="dashboard-card card-green">
+        <div class="card-header">
+            <div class="card-icon">📄</div>
+            <div>
+                <h3 class="card-title">Cotizaciones</h3>
+            </div>
+        </div>
+        <p class="card-value">{{ cotizaciones_pendientes }}</p>
+        <p class="card-description">Cotizaciones pendientes</p>
+        <div class="card-link">
+            <a href="/admin/cotizaciones/cotizacion/">Ver todas →</a>
+        </div>
+    </div>
+</div>
+
+<!-- Secciones de Administración -->
+{% if app_list %}
+<h2 style="color: #2c3e50; margin-top: 40px; margin-bottom: 20px;">
+    🛠️ Administración del Sistema
+</h2>
+
+{% for app in app_list %}
+<div class="module">
+    <h2>{{ app.name }}</h2>
+    <table>
+        <tbody>
+            {% for model in app.models %}
+            <tr>
+                <td>
+                    <a href="{{ model.admin_url }}">{{ model.name }}</a>
+                </td>
+                <td>
+                    {% if model.add_url %}
+                    <a href="{{ model.add_url }}" class="addlink">+ Añadir</a>
+                    {% endif %}
+                    {% if model.change_url %}
+                    <a href="{{ model.change_url }}" class="changelink">✏️ Cambiar</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endfor %}
+{% endif %}
+
+{% endblock %}
