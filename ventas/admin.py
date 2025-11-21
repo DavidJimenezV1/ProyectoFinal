@@ -115,10 +115,14 @@ class FacturaAdmin(admin.ModelAdmin):
     def descargar_pdf_link(self, obj):
         """Muestra un enlace para descargar el PDF"""
         if obj.pk:
-            return format_html(
-                '<a class="button" href="{}" style="background-color: #417690; padding: 5px 10px; border-radius: 3px; color: white; text-decoration: none;">📥 PDF</a>',
-                reverse('admin:ventas_factura_descargar_pdf', args=[obj.pk])
-            )
+            try:
+                pdf_url = reverse('admin:ventas_factura_descargar_pdf', args=[obj.pk])
+                return format_html(
+                    '<a class="button" href="{}" style="background-color: #417690; padding: 5px 10px; border-radius: 3px; color: white; text-decoration: none;">📥 PDF</a>',
+                    pdf_url
+                )
+            except Exception:
+                return format_html('<span style="color: #dc3545;">Error generando enlace</span>')
         return '-'
     descargar_pdf_link.short_description = 'Descargar'
 

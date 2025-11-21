@@ -110,8 +110,9 @@ class AuditLog(models.Model):
             return "Sin cambios registrados"
         
         try:
+            import json
             return json.dumps(self.cambios, indent=2, ensure_ascii=False)
-        except:
+        except (TypeError, ValueError) as e:
             return str(self.cambios)
 
 

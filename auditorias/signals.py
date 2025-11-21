@@ -5,7 +5,7 @@ from django.db.models.signals import post_save, post_delete, pre_save
 from django.dispatch import receiver
 from django.contrib.contenttypes.models import ContentType
 from django.core.serializers import serialize
-import json
+import logging
 
 from .models import (
     AuditLog, 
@@ -20,6 +20,9 @@ from inventario.models import Producto, Categoria
 from pedidos.models import Pedido, Cliente
 from cotizaciones.models import Cotizacion
 from ventas.models import Factura
+
+# Configurar logging
+logger = logging.getLogger(__name__)
 
 
 # Diccionario para almacenar los estados anteriores de los objetos
@@ -135,7 +138,7 @@ def create_audit_log(sender, instance, created, **kwargs):
         
     except Exception as e:
         # No interrumpir el flujo si falla la auditoría
-        print(f"Error en auditoría: {e}")
+        logger.error(f"Error en auditoría: {e}", exc_info=True)
 
 
 @receiver(post_delete)
@@ -169,7 +172,7 @@ def create_delete_audit_log(sender, instance, **kwargs):
         )
         
     except Exception as e:
-        print(f"Error en auditoría de eliminación: {e}")
+        logger.error(f"Error en auditoría de eliminación: {e}", exc_info=True)
 
 
 def create_specific_history(sender, instance, created, old_instance, usuario):
@@ -325,4 +328,4 @@ def create_specific_history(sender, instance, created, old_instance, usuario):
                 )
                 
     except Exception as e:
-        print(f"Error creando historial específico: {e}")
+        logger.error(f"Error creando historial específico: {e}", exc_info=True)

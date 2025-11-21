@@ -95,10 +95,15 @@ class ProductoAdmin(admin.ModelAdmin):
     marcar_bajo_stock.short_description = '⚠️ Identificar bajo stock'
     
     def aumentar_stock(self, request, queryset):
-        """Acción para aumentar stock en lote (ejemplo)"""
-        # Esta es una acción de ejemplo, en producción requeriría un formulario
-        self.message_user(request, 'Use el formulario de edición individual para ajustar stock.')
-    aumentar_stock.short_description = '📦 Ajustar stock'
+        """Acción para aumentar stock en lote"""
+        # Nota: Esta es una acción informativa. Para ajustes de stock masivos,
+        # se recomienda usar herramientas específicas de inventario
+        self.message_user(
+            request, 
+            'Para ajustar stock de múltiples productos, use el formulario de edición individual o importe un CSV.',
+            level='warning'
+        )
+    aumentar_stock.short_description = '📦 Ajustar stock (info)'
 
 @admin.register(ImagenProducto)
 class ImagenProductoAdmin(admin.ModelAdmin):

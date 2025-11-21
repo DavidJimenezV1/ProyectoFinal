@@ -182,9 +182,12 @@ class AuditLogAdmin(admin.ModelAdmin):
     def ver_cambios_btn(self, obj):
         """Botón para ver cambios en modal"""
         if obj.cambios:
+            # Usar escape seguro para JavaScript
+            from django.utils.html import escapejs
+            cambios_escapados = escapejs(obj.cambios_formateados)
             return format_html(
                 '<button type="button" onclick="alert(\'{}\');" style="background-color: #17a2b8; color: white; padding: 4px 8px; border-radius: 3px; border: none; cursor: pointer;">👁️ Ver</button>',
-                obj.cambios_formateados.replace("'", "\\'").replace("\n", "\\n")
+                cambios_escapados
             )
         return '-'
     ver_cambios_btn.short_description = 'Cambios'
