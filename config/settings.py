@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'cotizaciones', 
     'carrito',
     'ventas',
+    'auditorias',
 ]
 
 MIDDLEWARE = [
