@@ -36,6 +36,7 @@ urlpatterns = [
     path('catalogo/', include('catalogo.urls', namespace='catalogo')),
     path('carrito/', include('carrito.urls', namespace='carrito')),
     path('cotizaciones/', include('cotizaciones.urls', namespace='cotizaciones')),
+    path('auditorias/', include('auditorias.urls', namespace='auditorias')),
     
     path('pedidos/', include('pedidos.visual_urls')),
     
