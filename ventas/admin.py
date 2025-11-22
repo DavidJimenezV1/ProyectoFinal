@@ -5,6 +5,7 @@ from django.http import HttpResponse
 from django.urls import path, reverse
 from .models import Factura, ItemFactura
 from .utils import generar_pdf_factura
+from inventario.models import Producto
 
 class ItemFacturaInline(admin.TabularInline):
     model = ItemFactura
@@ -175,6 +176,12 @@ class ItemFacturaAdmin(admin.ModelAdmin):
     list_filter = ('factura__estado',)
     search_fields = ('factura__numero', 'producto__nombre')
     autocomplete_fields = ['producto', 'factura']
+
+# ✅ REGISTRAR PRODUCTO PARA AUTOCOMPLETE
+@admin.register(Producto)
+class ProductoAdmin(admin.ModelAdmin):
+    search_fields = ('nombre', 'codigo')
+    list_display = ('nombre', 'codigo', 'precio', 'stock')
 
 # Cambiar el título del admin
 admin.site.site_header = 'Tejos Olímpica - Administración'

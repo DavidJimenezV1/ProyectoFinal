@@ -9,11 +9,11 @@ from auditorias.models import (
 )
 
 
-# ==================== AUDIT LOG ADMIN ====================
+# ==================== REGISTRO DE AUDITORÍA ====================
 
-class AuditLogAdmin(admin.ModelAdmin):
-    """Admin customizado para Registros de Auditoría"""
-    list_display = ('resumen_corto', 'usuario_display', 'modelo_icon', 'timestamp_display', 'accion_color', 'descripcion_display')
+class AdminRegistroAuditoria(admin.ModelAdmin):
+    """Admin personalizado para Registros de Auditoría"""
+    list_display = ('resumen_corto', 'usuario_display', 'modelo_icon', 'fecha_hora_display', 'accion_color', 'descripcion_display')
     list_filter = ('accion', 'modelo', 'timestamp', 'usuario')
     search_fields = ('objeto_nombre', 'usuario__username', 'descripcion')
     readonly_fields = ('usuario', 'accion', 'modelo', 'objeto_id', 'objeto_nombre', 'timestamp', 'ip_address', 'descripcion', 'cambios_display', 'datos_anterior_display', 'datos_nuevo_display')
@@ -22,7 +22,7 @@ class AuditLogAdmin(admin.ModelAdmin):
     
     fieldsets = (
         ('Información General', {
-            'fields': ('usuario_display', 'accion_color', 'modelo_icon', 'timestamp_display')
+            'fields': ('usuario_display', 'accion_color', 'modelo_icon', 'fecha_hora_display')
         }),
         ('Objeto Modificado', {
             'fields': ('objeto_nombre', 'objeto_id')
@@ -70,13 +70,19 @@ class AuditLogAdmin(admin.ModelAdmin):
         return f"{icon} {obj.modelo}"
     modelo_icon.short_description = "Modelo"
     
-    def timestamp_display(self, obj):
+    def fecha_hora_display(self, obj):
         """Muestra la fecha/hora de forma legible"""
         return obj.timestamp.strftime("%d/%m/%Y %H:%M:%S")
-    timestamp_display.short_description = "Fecha/Hora"
+    fecha_hora_display.short_description = "Fecha/Hora"
     
     def accion_color(self, obj):
         """Muestra la acción con color"""
+        acciones_traduccion = {
+            'CREATE': 'Crear',
+            'UPDATE': 'Actualizar',
+            'DELETE': 'Eliminar',
+            'VIEW': 'Ver',
+        }
         colores = {
             'CREATE': '#28a745',
             'UPDATE': '#ffc107',
@@ -84,10 +90,11 @@ class AuditLogAdmin(admin.ModelAdmin):
             'VIEW': '#17a2b8',
         }
         color = colores.get(obj.accion, '#6c757d')
+        accion_traducida = acciones_traduccion.get(obj.accion, obj.get_accion_display())
         return format_html(
             '<span style="background-color: {}; color: white; padding: 5px 10px; border-radius: 3px; font-weight: bold;">{}</span>',
             color,
-            obj.get_accion_display()
+            accion_traducida
         )
     accion_color.short_description = "Acción"
     
@@ -155,30 +162,33 @@ class AuditLogAdmin(admin.ModelAdmin):
 
 # ==================== HISTORIAL PRODUCTO ====================
 
-class HistorialProductoAdmin(admin.ModelAdmin):
-    list_display = ('producto_id', 'usuario_display', 'accion_display', 'precio_cambio', 'stock_cambio', 'descripcion_display', 'timestamp_display')
+class AdminHistorialProducto(admin.ModelAdmin):
+    list_display = ('producto_id', 'usuario_display', 'accion_display', 'precio_cambio', 'stock_cambio', 'descripcion_display', 'fecha_hora_display')
     list_filter = ('audit_log__accion', 'audit_log__timestamp', 'audit_log__usuario')
-    readonly_fields = ('audit_log', 'producto_id', 'precio_display', 'stock_display', 'descripcion_completa', 'timestamp_display')
+    readonly_fields = ('audit_log', 'producto_id', 'precio_display', 'stock_display', 'descripcion_completa', 'fecha_hora_display')
     
     def usuario_display(self, obj):
-        """Muestra el usuario que hizo el cambio"""
         if obj.audit_log.usuario:
             return f"👤 {obj.audit_log.usuario.get_full_name() or obj.audit_log.usuario.username}"
         return "Sistema"
     usuario_display.short_description = "Usuario"
     
     def accion_display(self, obj):
-        """Muestra la acción con color"""
-        accion = obj.audit_log.get_accion_display()
+        acciones_traduccion = {
+            'CREATE': 'Crear',
+            'UPDATE': 'Actualizar',
+            'DELETE': 'Eliminar',
+        }
         colores = {
             'CREATE': '#28a745',
             'UPDATE': '#ffc107',
             'DELETE': '#dc3545',
         }
         color = colores.get(obj.audit_log.accion, '#6c757d')
+        accion_traducida = acciones_traduccion.get(obj.audit_log.accion, obj.audit_log.get_accion_display())
         return format_html(
             '<span style="background-color: {}; color: white; padding: 5px 10px; border-radius: 3px; font-weight: bold;">{}</span>',
-            color, accion
+            color, accion_traducida
         )
     accion_display.short_description = "Acción"
     
@@ -201,7 +211,6 @@ class HistorialProductoAdmin(admin.ModelAdmin):
     stock_cambio.short_description = "Stock"
     
     def descripcion_display(self, obj):
-        """Muestra la descripción en la lista (primeras 60 caracteres)"""
         descripcion = obj.audit_log.descripcion if obj.audit_log.descripcion else "-"
         if len(descripcion) > 60:
             descripcion = descripcion[:60] + "..."
@@ -209,7 +218,6 @@ class HistorialProductoAdmin(admin.ModelAdmin):
     descripcion_display.short_description = "Descripción"
     
     def descripcion_completa(self, obj):
-        """Muestra la descripción completa en detalle"""
         return obj.audit_log.descripcion or "Sin descripción"
     descripcion_completa.short_description = "Descripción Completa"
     
@@ -221,9 +229,9 @@ class HistorialProductoAdmin(admin.ModelAdmin):
         return f"Antes: {obj.stock_anterior} | Después: {obj.stock_nuevo}"
     stock_display.short_description = "Detalles Stock"
     
-    def timestamp_display(self, obj):
+    def fecha_hora_display(self, obj):
         return obj.audit_log.timestamp.strftime("%d/%m/%Y %H:%M:%S")
-    timestamp_display.short_description = "Fecha/Hora"
+    fecha_hora_display.short_description = "Fecha/Hora"
     
     def has_add_permission(self, request):
         return False
@@ -237,30 +245,33 @@ class HistorialProductoAdmin(admin.ModelAdmin):
 
 # ==================== HISTORIAL PEDIDO ====================
 
-class HistorialPedidoAdmin(admin.ModelAdmin):
-    list_display = ('pedido_id', 'usuario_display', 'accion_display', 'estado_cambio', 'cliente_display', 'descripcion_display', 'timestamp_display')
+class AdminHistorialPedido(admin.ModelAdmin):
+    list_display = ('pedido_id', 'usuario_display', 'accion_display', 'estado_cambio', 'cliente_display', 'descripcion_display', 'fecha_hora_display')
     list_filter = ('audit_log__accion', 'audit_log__timestamp', 'audit_log__usuario')
-    readonly_fields = ('audit_log', 'pedido_id', 'estado_display', 'cliente_display_full', 'descripcion_completa', 'timestamp_display')
+    readonly_fields = ('audit_log', 'pedido_id', 'estado_display', 'cliente_display_full', 'descripcion_completa', 'fecha_hora_display')
     
     def usuario_display(self, obj):
-        """Muestra el usuario que hizo el cambio"""
         if obj.audit_log.usuario:
             return f"👤 {obj.audit_log.usuario.get_full_name() or obj.audit_log.usuario.username}"
         return "Sistema"
     usuario_display.short_description = "Usuario"
     
     def accion_display(self, obj):
-        """Muestra la acción con color"""
-        accion = obj.audit_log.get_accion_display()
+        acciones_traduccion = {
+            'CREATE': 'Crear',
+            'UPDATE': 'Actualizar',
+            'DELETE': 'Eliminar',
+        }
         colores = {
             'CREATE': '#28a745',
             'UPDATE': '#ffc107',
             'DELETE': '#dc3545',
         }
         color = colores.get(obj.audit_log.accion, '#6c757d')
+        accion_traducida = acciones_traduccion.get(obj.audit_log.accion, obj.audit_log.get_accion_display())
         return format_html(
             '<span style="background-color: {}; color: white; padding: 5px 10px; border-radius: 3px; font-weight: bold;">{}</span>',
-            color, accion
+            color, accion_traducida
         )
     accion_display.short_description = "Acción"
     
@@ -286,7 +297,6 @@ class HistorialPedidoAdmin(admin.ModelAdmin):
     cliente_display_full.short_description = "Detalles Cliente"
     
     def descripcion_display(self, obj):
-        """Muestra la descripción en la lista (primeras 60 caracteres)"""
         descripcion = obj.audit_log.descripcion if obj.audit_log.descripcion else "-"
         if len(descripcion) > 60:
             descripcion = descripcion[:60] + "..."
@@ -294,13 +304,12 @@ class HistorialPedidoAdmin(admin.ModelAdmin):
     descripcion_display.short_description = "Descripción"
     
     def descripcion_completa(self, obj):
-        """Muestra la descripción completa en detalle"""
         return obj.audit_log.descripcion or "Sin descripción"
     descripcion_completa.short_description = "Descripción Completa"
     
-    def timestamp_display(self, obj):
+    def fecha_hora_display(self, obj):
         return obj.audit_log.timestamp.strftime("%d/%m/%Y %H:%M:%S")
-    timestamp_display.short_description = "Fecha/Hora"
+    fecha_hora_display.short_description = "Fecha/Hora"
     
     def has_add_permission(self, request):
         return False
@@ -314,35 +323,37 @@ class HistorialPedidoAdmin(admin.ModelAdmin):
 
 # ==================== HISTORIAL COTIZACIÓN ====================
 
-class HistorialCotizacionAdmin(admin.ModelAdmin):
-    list_display = ('cotizacion_id', 'usuario_display', 'accion_display', 'estado_cambio', 'monto_cambio', 'descripcion_display', 'timestamp_display')
+class AdminHistorialCotizacion(admin.ModelAdmin):
+    list_display = ('cotizacion_id', 'usuario_display', 'accion_display', 'estado_cambio', 'monto_cambio', 'descripcion_display', 'fecha_hora_display')
     list_filter = ('audit_log__accion', 'audit_log__timestamp', 'audit_log__usuario')
-    readonly_fields = ('audit_log', 'cotizacion_id', 'estado_display', 'monto_display', 'descripcion_completa', 'timestamp_display')
+    readonly_fields = ('audit_log', 'cotizacion_id', 'estado_display', 'monto_display', 'descripcion_completa', 'fecha_hora_display')
     
     def usuario_display(self, obj):
-        """Muestra el usuario que hizo el cambio"""
         if obj.audit_log.usuario:
             return f"👤 {obj.audit_log.usuario.get_full_name() or obj.audit_log.usuario.username}"
         return "Sistema"
     usuario_display.short_description = "Usuario"
     
     def accion_display(self, obj):
-        """Muestra la acción con color"""
-        accion = obj.audit_log.get_accion_display()
+        acciones_traduccion = {
+            'CREATE': 'Crear',
+            'UPDATE': 'Actualizar',
+            'DELETE': 'Eliminar',
+        }
         colores = {
             'CREATE': '#28a745',
             'UPDATE': '#ffc107',
             'DELETE': '#dc3545',
         }
         color = colores.get(obj.audit_log.accion, '#6c757d')
+        accion_traducida = acciones_traduccion.get(obj.audit_log.accion, obj.audit_log.get_accion_display())
         return format_html(
             '<span style="background-color: {}; color: white; padding: 5px 10px; border-radius: 3px; font-weight: bold;">{}</span>',
-            color, accion
+            color, accion_traducida
         )
     accion_display.short_description = "Acción"
     
     def estado_cambio(self, obj):
-        """Muestra el cambio de estado"""
         if obj.estado_anterior and obj.estado_nuevo:
             return format_html(
                 '<span style="color: #d32f2f;">❌ {}</span> → <span style="color: #388e3c;">✅ {}</span>',
@@ -357,7 +368,6 @@ class HistorialCotizacionAdmin(admin.ModelAdmin):
     estado_cambio.short_description = "Estado"
     
     def monto_cambio(self, obj):
-        """Muestra el cambio de monto en pesos colombianos"""
         try:
             monto_anterior = float(obj.monto_anterior) if obj.monto_anterior else None
             monto_nuevo = float(obj.monto_nuevo) if obj.monto_nuevo else None
@@ -378,7 +388,6 @@ class HistorialCotizacionAdmin(admin.ModelAdmin):
     monto_cambio.short_description = "Monto"
     
     def descripcion_display(self, obj):
-        """Muestra la descripción en la lista (primeras 60 caracteres)"""
         descripcion = obj.audit_log.descripcion if obj.audit_log.descripcion else "-"
         if len(descripcion) > 60:
             descripcion = descripcion[:60] + "..."
@@ -386,7 +395,6 @@ class HistorialCotizacionAdmin(admin.ModelAdmin):
     descripcion_display.short_description = "Descripción"
     
     def descripcion_completa(self, obj):
-        """Muestra la descripción completa en detalle"""
         return obj.audit_log.descripcion or "Sin descripción"
     descripcion_completa.short_description = "Descripción Completa"
     
@@ -403,9 +411,9 @@ class HistorialCotizacionAdmin(admin.ModelAdmin):
             return "N/A"
     monto_display.short_description = "Detalles Monto"
     
-    def timestamp_display(self, obj):
+    def fecha_hora_display(self, obj):
         return obj.audit_log.timestamp.strftime("%d/%m/%Y %H:%M:%S")
-    timestamp_display.short_description = "Fecha/Hora"
+    fecha_hora_display.short_description = "Fecha/Hora"
     
     def has_add_permission(self, request):
         return False
@@ -419,35 +427,37 @@ class HistorialCotizacionAdmin(admin.ModelAdmin):
 
 # ==================== HISTORIAL FACTURA ====================
 
-class HistorialFacturaAdmin(admin.ModelAdmin):
-    list_display = ('factura_id', 'usuario_display', 'accion_display', 'estado_cambio', 'monto_cambio', 'descripcion_display', 'timestamp_display')
+class AdminHistorialFactura(admin.ModelAdmin):
+    list_display = ('factura_id', 'usuario_display', 'accion_display', 'estado_cambio', 'monto_cambio', 'descripcion_display', 'fecha_hora_display')
     list_filter = ('audit_log__accion', 'audit_log__timestamp', 'audit_log__usuario')
-    readonly_fields = ('audit_log', 'factura_id', 'estado_display', 'monto_display', 'descripcion_completa', 'timestamp_display')
+    readonly_fields = ('audit_log', 'factura_id', 'estado_display', 'monto_display', 'descripcion_completa', 'fecha_hora_display')
     
     def usuario_display(self, obj):
-        """Muestra el usuario que hizo el cambio"""
         if obj.audit_log.usuario:
             return f"👤 {obj.audit_log.usuario.get_full_name() or obj.audit_log.usuario.username}"
         return "Sistema"
     usuario_display.short_description = "Usuario"
     
     def accion_display(self, obj):
-        """Muestra la acción con color"""
-        accion = obj.audit_log.get_accion_display()
+        acciones_traduccion = {
+            'CREATE': 'Crear',
+            'UPDATE': 'Actualizar',
+            'DELETE': 'Eliminar',
+        }
         colores = {
             'CREATE': '#28a745',
             'UPDATE': '#ffc107',
             'DELETE': '#dc3545',
         }
         color = colores.get(obj.audit_log.accion, '#6c757d')
+        accion_traducida = acciones_traduccion.get(obj.audit_log.accion, obj.audit_log.get_accion_display())
         return format_html(
             '<span style="background-color: {}; color: white; padding: 5px 10px; border-radius: 3px; font-weight: bold;">{}</span>',
-            color, accion
+            color, accion_traducida
         )
     accion_display.short_description = "Acción"
     
     def estado_cambio(self, obj):
-        """Muestra el cambio de estado"""
         if obj.estado_anterior and obj.estado_nuevo:
             return format_html(
                 '<span style="color: #d32f2f;">❌ {}</span> → <span style="color: #388e3c;">✅ {}</span>',
@@ -462,7 +472,6 @@ class HistorialFacturaAdmin(admin.ModelAdmin):
     estado_cambio.short_description = "Estado"
     
     def monto_cambio(self, obj):
-        """Muestra el cambio de monto en pesos colombianos"""
         try:
             monto_anterior = float(obj.monto_anterior) if obj.monto_anterior else None
             monto_nuevo = float(obj.monto_nuevo) if obj.monto_nuevo else None
@@ -483,7 +492,6 @@ class HistorialFacturaAdmin(admin.ModelAdmin):
     monto_cambio.short_description = "Monto"
     
     def descripcion_display(self, obj):
-        """Muestra la descripción en la lista (primeras 60 caracteres)"""
         descripcion = obj.audit_log.descripcion if obj.audit_log.descripcion else "-"
         if len(descripcion) > 60:
             descripcion = descripcion[:60] + "..."
@@ -491,7 +499,6 @@ class HistorialFacturaAdmin(admin.ModelAdmin):
     descripcion_display.short_description = "Descripción"
     
     def descripcion_completa(self, obj):
-        """Muestra la descripción completa en detalle"""
         return obj.audit_log.descripcion or "Sin descripción"
     descripcion_completa.short_description = "Descripción Completa"
     
@@ -508,9 +515,9 @@ class HistorialFacturaAdmin(admin.ModelAdmin):
             return "N/A"
     monto_display.short_description = "Detalles Monto"
     
-    def timestamp_display(self, obj):
+    def fecha_hora_display(self, obj):
         return obj.audit_log.timestamp.strftime("%d/%m/%Y %H:%M:%S")
-    timestamp_display.short_description = "Fecha/Hora"
+    fecha_hora_display.short_description = "Fecha/Hora"
     
     def has_add_permission(self, request):
         return False
@@ -524,30 +531,33 @@ class HistorialFacturaAdmin(admin.ModelAdmin):
 
 # ==================== HISTORIAL CLIENTE ====================
 
-class HistorialClienteAdmin(admin.ModelAdmin):
-    list_display = ('cliente_id', 'usuario_display', 'accion_display', 'cambios_preview', 'descripcion_display', 'timestamp_display')
+class AdminHistorialCliente(admin.ModelAdmin):
+    list_display = ('cliente_id', 'usuario_display', 'accion_display', 'cambios_preview', 'descripcion_display', 'fecha_hora_display')
     list_filter = ('audit_log__accion', 'audit_log__timestamp', 'audit_log__usuario')
-    readonly_fields = ('audit_log', 'cliente_id', 'cambios_display', 'descripcion_completa', 'timestamp_display')
+    readonly_fields = ('audit_log', 'cliente_id', 'cambios_display', 'descripcion_completa', 'fecha_hora_display')
     
     def usuario_display(self, obj):
-        """Muestra el usuario que hizo el cambio"""
         if obj.audit_log.usuario:
             return f"👤 {obj.audit_log.usuario.get_full_name() or obj.audit_log.usuario.username}"
         return "Sistema"
     usuario_display.short_description = "Usuario"
     
     def accion_display(self, obj):
-        """Muestra la acción con color"""
-        accion = obj.audit_log.get_accion_display()
+        acciones_traduccion = {
+            'CREATE': 'Crear',
+            'UPDATE': 'Actualizar',
+            'DELETE': 'Eliminar',
+        }
         colores = {
             'CREATE': '#28a745',
             'UPDATE': '#ffc107',
             'DELETE': '#dc3545',
         }
         color = colores.get(obj.audit_log.accion, '#6c757d')
+        accion_traducida = acciones_traduccion.get(obj.audit_log.accion, obj.audit_log.get_accion_display())
         return format_html(
             '<span style="background-color: {}; color: white; padding: 5px 10px; border-radius: 3px; font-weight: bold;">{}</span>',
-            color, accion
+            color, accion_traducida
         )
     accion_display.short_description = "Acción"
     
@@ -567,7 +577,6 @@ class HistorialClienteAdmin(admin.ModelAdmin):
     cambios_display.short_description = "Detalles Cambios"
     
     def descripcion_display(self, obj):
-        """Muestra la descripción en la lista (primeras 60 caracteres)"""
         descripcion = obj.audit_log.descripcion if obj.audit_log.descripcion else "-"
         if len(descripcion) > 60:
             descripcion = descripcion[:60] + "..."
@@ -575,13 +584,12 @@ class HistorialClienteAdmin(admin.ModelAdmin):
     descripcion_display.short_description = "Descripción"
     
     def descripcion_completa(self, obj):
-        """Muestra la descripción completa en detalle"""
         return obj.audit_log.descripcion or "Sin descripción"
     descripcion_completa.short_description = "Descripción Completa"
     
-    def timestamp_display(self, obj):
+    def fecha_hora_display(self, obj):
         return obj.audit_log.timestamp.strftime("%d/%m/%Y %H:%M:%S")
-    timestamp_display.short_description = "Fecha/Hora"
+    fecha_hora_display.short_description = "Fecha/Hora"
     
     def has_add_permission(self, request):
         return False
@@ -595,30 +603,33 @@ class HistorialClienteAdmin(admin.ModelAdmin):
 
 # ==================== HISTORIAL CATEGORÍA ====================
 
-class HistorialCategoriaAdmin(admin.ModelAdmin):
-    list_display = ('categoria_id', 'usuario_display', 'accion_display', 'nombre_cambio', 'descripcion_display', 'timestamp_display')
+class AdminHistorialCategoria(admin.ModelAdmin):
+    list_display = ('categoria_id', 'usuario_display', 'accion_display', 'nombre_cambio', 'descripcion_display', 'fecha_hora_display')
     list_filter = ('audit_log__accion', 'audit_log__timestamp', 'audit_log__usuario')
-    readonly_fields = ('audit_log', 'categoria_id', 'nombre_display', 'descripcion_detail', 'descripcion_completa', 'timestamp_display')
+    readonly_fields = ('audit_log', 'categoria_id', 'nombre_display', 'descripcion_detail', 'descripcion_completa', 'fecha_hora_display')
     
     def usuario_display(self, obj):
-        """Muestra el usuario que hizo el cambio"""
         if obj.audit_log.usuario:
             return f"👤 {obj.audit_log.usuario.get_full_name() or obj.audit_log.usuario.username}"
         return "Sistema"
     usuario_display.short_description = "Usuario"
     
     def accion_display(self, obj):
-        """Muestra la acción con color"""
-        accion = obj.audit_log.get_accion_display()
+        acciones_traduccion = {
+            'CREATE': 'Crear',
+            'UPDATE': 'Actualizar',
+            'DELETE': 'Eliminar',
+        }
         colores = {
             'CREATE': '#28a745',
             'UPDATE': '#ffc107',
             'DELETE': '#dc3545',
         }
         color = colores.get(obj.audit_log.accion, '#6c757d')
+        accion_traducida = acciones_traduccion.get(obj.audit_log.accion, obj.audit_log.get_accion_display())
         return format_html(
             '<span style="background-color: {}; color: white; padding: 5px 10px; border-radius: 3px; font-weight: bold;">{}</span>',
-            color, accion
+            color, accion_traducida
         )
     accion_display.short_description = "Acción"
     
@@ -640,7 +651,6 @@ class HistorialCategoriaAdmin(admin.ModelAdmin):
     descripcion_detail.short_description = "Detalles Descripción"
     
     def descripcion_display(self, obj):
-        """Muestra la descripción en la lista (primeras 60 caracteres)"""
         descripcion = obj.audit_log.descripcion if obj.audit_log.descripcion else "-"
         if len(descripcion) > 60:
             descripcion = descripcion[:60] + "..."
@@ -648,13 +658,12 @@ class HistorialCategoriaAdmin(admin.ModelAdmin):
     descripcion_display.short_description = "Descripción"
     
     def descripcion_completa(self, obj):
-        """Muestra la descripción completa en detalle"""
         return obj.audit_log.descripcion or "Sin descripción"
     descripcion_completa.short_description = "Descripción Completa"
     
-    def timestamp_display(self, obj):
+    def fecha_hora_display(self, obj):
         return obj.audit_log.timestamp.strftime("%d/%m/%Y %H:%M:%S")
-    timestamp_display.short_description = "Fecha/Hora"
+    fecha_hora_display.short_description = "Fecha/Hora"
     
     def has_add_permission(self, request):
         return False
@@ -668,10 +677,10 @@ class HistorialCategoriaAdmin(admin.ModelAdmin):
 
 # ==================== REGISTRAR MODELOS ====================
 
-admin.site.register(AuditLog, AuditLogAdmin)
-admin.site.register(HistorialProducto, HistorialProductoAdmin)
-admin.site.register(HistorialPedido, HistorialPedidoAdmin)
-admin.site.register(HistorialCotizacion, HistorialCotizacionAdmin)
-admin.site.register(HistorialFactura, HistorialFacturaAdmin)
-admin.site.register(HistorialCliente, HistorialClienteAdmin)
-admin.site.register(HistorialCategoria, HistorialCategoriaAdmin)
+admin.site.register(AuditLog, AdminRegistroAuditoria)
+admin.site.register(HistorialProducto, AdminHistorialProducto)
+admin.site.register(HistorialPedido, AdminHistorialPedido)
+admin.site.register(HistorialCotizacion, AdminHistorialCotizacion)
+admin.site.register(HistorialFactura, AdminHistorialFactura)
+admin.site.register(HistorialCliente, AdminHistorialCliente)
+admin.site.register(HistorialCategoria, AdminHistorialCategoria)

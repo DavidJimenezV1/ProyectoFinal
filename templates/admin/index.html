@@ -1,137 +1,857 @@
-{% extends "admin/base_site.html" %}
-{% load i18n static %}
+{% extends "admin/base.html" %}
+{% load static %}
 
-{% block title %}Panel de Control - Administración{% endblock %}
+{% block title %}Panel de Control | {{ block.super }}{% endblock %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <style>
+    /* ==================== OCULTAR SIDEBAR COMPLETAMENTE ==================== */
+    #sidebar {
+      display: none !important;
+      visibility: hidden !important;
+      width: 0 !important;
+      height: 0 !important;
+    }
+
+    #container {
+      display: block !important;
+    }
+
+    #main-content {
+      margin-left: 0 !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      background: transparent !important;
+      padding: 50px 60px !important;
+    }
+
+    /* ==================== RESET Y BASE ==================== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body, #container {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%) !important;
+      color: #fff;
+    }
+
+    /* ==================== HEADER CENTRADO ==================== */
+    #header {
+      background: linear-gradient(90deg, rgba(26, 26, 46, 0.98) 0%, rgba(22, 33, 62, 0.98) 50%, rgba(15, 52, 96, 0.98) 100%);
+      backdrop-filter: blur(10px);
+      border-bottom: 4px solid;
+      border-image: linear-gradient(90deg, #fbbf24 0%, #f59e0b 100%) 1 !important;
+      padding: 25px 50px;
+      text-align: center;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    #header h1 {
+      font-size: 36px;
+      font-weight: 900;
+      color: #fbbf24 !important;
+      letter-spacing: 2px;
+      text-shadow: 0 2px 8px rgba(251, 191, 36, 0.3);
+    }
+
+    /* ==================== TÍTULO DEL DASHBOARD ==================== */
+    .dashboard-title {
+      text-align: center;
+      margin-bottom: 45px;
+      animation: fadeIn 0.8s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .dashboard-title h1 {
+      font-size: 56px;
+      font-weight: 900;
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 12px;
+      letter-spacing: 1px;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .dashboard-title p {
+      font-size: 20px;
+      color: #fcd34d;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+    }
+
+    /* ==================== SECCIÓN DE BIENVENIDA ==================== */
+    .welcome-section {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 45px;
+      border-radius: 25px;
+      color: white;
+      margin-bottom: 50px;
+      box-shadow: 0 20px 60px rgba(102, 126, 234, 0.35);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      position: relative;
+      overflow: hidden;
+      animation: slideDown 1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-40px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .welcome-section::before {
+      content: "";
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.12) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    .welcome-section > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .welcome-section h2 {
+      font-size: 36px;
+      margin-bottom: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+      font-weight: 900;
+      letter-spacing: 1px;
+    }
+
+    .welcome-info {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 28px;
+    }
+
+    .info-card {
+      background: rgba(255, 255, 255, 0.16);
+      padding: 25px;
+      border-radius: 16px;
+      border-left: 6px solid #fbbf24;
+      font-size: 15px;
+      backdrop-filter: blur(12px);
+      transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      animation: fadeIn 1s ease-in;
+    }
+
+    .info-card:nth-child(2) { animation-delay: 0.15s; }
+    .info-card:nth-child(3) { animation-delay: 0.3s; }
+
+    .info-card:hover {
+      background: rgba(255, 255, 255, 0.28);
+      transform: translateY(-6px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+    }
+
+    .info-card strong {
+      display: block;
+      color: #fcd34d;
+      margin-bottom: 10px;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 1.8px;
+      font-weight: 900;
+    }
+
+    .info-card span {
+      display: inline-block;
+      padding: 8px 16px;
+      border-radius: 25px;
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: 0.5px;
+    }
+
+    /* ==================== DASHBOARD STATS ==================== */
+    .dashboard-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 32px;
+      margin-bottom: 50px;
+    }
+
+    .stat-card {
+      background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
+      padding: 38px;
+      border-radius: 22px;
+      box-shadow: 0 15px 50px rgba(0, 0, 0, 0.2);
+      border: 4px solid;
+      transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      animation: scaleIn 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    @keyframes scaleIn {
+      from {
+        opacity: 0;
+        transform: scale(0.85);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .stat-card:nth-child(1) { animation-delay: 0.1s; }
+    .stat-card:nth-child(2) { animation-delay: 0.2s; }
+    .stat-card:nth-child(3) { animation-delay: 0.3s; }
+    .stat-card:nth-child(4) { animation-delay: 0.4s; }
+    .stat-card:nth-child(5) { animation-delay: 0.5s; }
+    .stat-card:nth-child(6) { animation-delay: 0.6s; }
+
+    .stat-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 8px;
+      background: linear-gradient(90deg, var(--color-start), var(--color-end));
+    }
+
+    .stat-card::after {
+      content: "";
+      position: absolute;
+      bottom: -50%;
+      right: -50%;
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, var(--color-start) 0%, transparent 70%);
+      opacity: 0.08;
+      border-radius: 50%;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-15px);
+      box-shadow: 0 25px 75px rgba(0, 0, 0, 0.3);
+    }
+
+    .stat-card.productos { --color-start: #f59e0b; --color-end: #d97706; border-color: #fcd34d; }
+    .stat-card.pedidos { --color-start: #ef4444; --color-end: #dc2626; border-color: #fca5a5; }
+    .stat-card.clientes { --color-start: #3b82f6; --color-end: #1d4ed8; border-color: #93c5fd; }
+    .stat-card.ingresos { --color-start: #10b981; --color-end: #059669; border-color: #a7f3d0; }
+    .stat-card.categorias { --color-start: #8b5cf6; --color-end: #7c3aed; border-color: #ddd6fe; }
+    .stat-card.cotizaciones { --color-start: #ec4899; --color-end: #db2777; border-color: #fbcfe8; }
+
+    .stat-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 15px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .stat-label {
+      color: #666;
+      font-size: 13px;
+      text-transform: uppercase;
+      font-weight: 900;
+      letter-spacing: 1.8px;
+      margin-bottom: 12px;
+    }
+
+    .stat-value {
+      font-size: 52px;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--color-start), var(--color-end));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1;
+    }
+
+    .stat-icon {
+      font-size: 56px;
+      opacity: 0.7;
+      transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      position: relative;
+      z-index: 2;
+    }
+
+    .stat-card:hover .stat-icon {
+      transform: scale(1.2) rotate(10deg);
+    }
+
+    .stat-description {
+      color: #999;
+      font-size: 14px;
+      font-weight: 600;
+      margin-top: 15px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ==================== ACCIONES RÁPIDAS ==================== */
+    .quick-actions {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%);
+      padding: 45px;
+      border-radius: 25px;
+      border: 2px solid rgba(255, 255, 255, 0.12);
+      margin-bottom: 50px;
+      backdrop-filter: blur(15px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      animation: fadeIn 1.2s ease-in;
+      animation-delay: 0.8s;
+      animation-fill-mode: both;
+    }
+
+    .quick-actions h3 {
+      color: #fff;
+      font-size: 28px;
+      margin-bottom: 35px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 900;
+      letter-spacing: 1px;
+    }
+
+    .actions-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 22px;
+    }
+
+    .action-btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #ffffff !important;
+      padding: 20px 24px;
+      border-radius: 14px;
+      text-align: center;
+      text-decoration: none !important;
+      transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      border: 2px solid transparent;
+      cursor: pointer;
+      font-weight: 700 !important;
+      font-size: 14px !important;
+      letter-spacing: 0.5px;
+      animation: fadeIn 0.8s ease-in;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .action-btn:nth-child(1) { animation-delay: 0.9s; }
+    .action-btn:nth-child(2) { animation-delay: 0.95s; }
+    .action-btn:nth-child(3) { animation-delay: 1s; }
+    .action-btn:nth-child(4) { animation-delay: 1.05s; }
+    .action-btn:nth-child(5) { animation-delay: 1.1s; }
+    .action-btn:nth-child(6) { animation-delay: 1.15s; }
+
+    .action-btn:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 12px 30px rgba(102, 126, 234, 0.4);
+      border-color: rgba(255, 255, 255, 0.3);
+      color: #fbbf24 !important;
+    }
+
+    /* ==================== MÓDULOS/SECCIONES ==================== */
+    .modules-section {
+      margin-top: 30px;
+    }
+
+    .module-group {
+      margin-bottom: 35px;
+      animation: fadeIn 1.4s ease-in;
+      animation-fill-mode: both;
+    }
+
+    .module-group:nth-child(1) { animation-delay: 1.2s; }
+    .module-group:nth-child(2) { animation-delay: 1.3s; }
+    .module-group:nth-child(3) { animation-delay: 1.4s; }
+    .module-group:nth-child(4) { animation-delay: 1.5s; }
+    .module-group:nth-child(5) { animation-delay: 1.6s; }
+    .module-group:nth-child(6) { animation-delay: 1.7s; }
+
+    .module-header {
+      background: linear-gradient(90deg, var(--module-color-start) 0%, var(--module-color-end) 100%);
+      padding: 20px 28px;
+      border-radius: 14px 14px 0 0;
+      font-size: 18px;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      letter-spacing: 1px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+      color: #ffffff !important;
+    }
+
+    .module-group.auditorias .module-header { --module-color-start: #8b5cf6; --module-color-end: #7c3aed; }
+    .module-group.cotizaciones .module-header { --module-color-start: #ec4899; --module-color-end: #db2777; }
+    .module-group.facturacion .module-header { --module-color-start: #ef4444; --module-color-end: #dc2626; }
+    .module-group.inventario .module-header { --module-color-start: #f59e0b; --module-color-end: #d97706; }
+    .module-group.pedidos .module-header { --module-color-start: #3b82f6; --module-color-end: #1d4ed8; }
+    .module-group.usuarios .module-header { --module-color-start: #10b981; --module-color-end: #059669; }
+
+    .module-items {
+      background: rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 0 0 14px 14px;
+      padding: 25px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 16px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .module-link {
+      background: rgba(255, 255, 255, 0.12);
+      padding: 16px 20px;
+      border-radius: 10px;
+      color: #fbbf24 !important;
+      text-decoration: none !important;
+      transition: all 0.3s ease;
+      border-left: 4px solid #fbbf24;
+      font-size: 14px !important;
+      font-weight: 700 !important;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .module-link:hover {
+      background: rgba(255, 187, 51, 0.2);
+      transform: translateX(6px);
+      border-left-color: #fcd34d;
+      box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);
+      color: #fcd34d !important;
+    }
+
+    /* ==================== RESPONSIVE ==================== */
+    @media (max-width: 1200px) {
+      #main-content {
+        padding: 40px 40px !important;
+      }
+
+      .dashboard-stats {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 24px;
+      }
+
+      .module-items {
+        grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+      }
+
+      .stat-card {
+        padding: 32px;
+      }
+
+      .stat-value {
+        font-size: 44px;
+      }
+    }
+
+    @media (max-width: 1024px) {
+      #main-content {
+        padding: 30px 30px !important;
+      }
+
+      .dashboard-title h1 {
+        font-size: 42px;
+      }
+
+      .welcome-section {
+        padding: 32px;
+      }
+
+      .dashboard-stats {
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+      }
+
+      .stat-card {
+        padding: 28px;
+      }
+
+      .stat-value {
+        font-size: 38px;
+      }
+
+      .stat-icon {
+        font-size: 44px;
+      }
+
+      .quick-actions {
+        padding: 32px;
+      }
+
+      .actions-grid {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 16px;
+      }
+
+      .action-btn {
+        padding: 16px 18px;
+        font-size: 12px;
+      }
+
+      .module-items {
+        grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+        padding: 18px;
+        gap: 12px;
+      }
+
+      .module-link {
+        padding: 12px 16px;
+        font-size: 12px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      #main-content {
+        padding: 20px 20px !important;
+      }
+
+      .dashboard-title h1 {
+        font-size: 36px;
+      }
+
+      .welcome-section {
+        padding: 24px;
+        margin-bottom: 35px;
+      }
+
+      .welcome-section h2 {
+        font-size: 26px;
+      }
+
+      .welcome-info {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+
+      .dashboard-stats {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+        margin-bottom: 35px;
+      }
+
+      .stat-card {
+        padding: 24px;
+      }
+
+      .stat-value {
+        font-size: 32px;
+      }
+
+      .stat-icon {
+        font-size: 40px;
+      }
+
+      .quick-actions {
+        padding: 24px;
+        margin-bottom: 35px;
+      }
+
+      .quick-actions h3 {
+        font-size: 20px;
+        margin-bottom: 20px;
+      }
+
+      .actions-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+      }
+
+      .action-btn {
+        padding: 14px 12px;
+        font-size: 11px;
+      }
+
+      .module-items {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+
+      .module-header {
+        font-size: 16px;
+        padding: 16px 20px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      #main-content {
+        padding: 16px 16px !important;
+      }
+
+      .dashboard-title h1 {
+        font-size: 28px;
+      }
+
+      .welcome-section {
+        padding: 18px;
+        margin-bottom: 25px;
+      }
+
+      .welcome-section h2 {
+        font-size: 20px;
+        gap: 8px;
+      }
+
+      .welcome-info {
+        gap: 12px;
+      }
+
+      .info-card {
+        padding: 14px;
+        font-size: 12px;
+      }
+
+      .dashboard-stats {
+        grid-template-columns: 1fr;
+        gap: 14px;
+        margin-bottom: 25px;
+      }
+
+      .stat-card {
+        padding: 20px;
+      }
+
+      .stat-value {
+        font-size: 28px;
+      }
+
+      .stat-icon {
+        font-size: 32px;
+      }
+
+      .quick-actions {
+        padding: 18px;
+        margin-bottom: 25px;
+      }
+
+      .quick-actions h3 {
+        font-size: 18px;
+        margin-bottom: 16px;
+      }
+
+      .actions-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+
+      .module-items {
+        padding: 14px;
+      }
+
+      .module-header {
+        font-size: 14px;
+        padding: 14px 16px;
+      }
+    }
+  </style>
+{% endblock %}
 
 {% block content %}
+<div id="content-main">
+  <!-- ENCABEZADO PRINCIPAL -->
+  <div class="dashboard-title">
+    <h1>🏆 Panel de Control</h1>
+    <p>Tejos Olímpica - Administración Inteligente</p>
+  </div>
 
-<h1 style="color: #2c3e50; margin-bottom: 30px;">
-    📊 Panel de Control
-</h1>
+  <!-- SECCIÓN DE BIENVENIDA -->
+  <div class="welcome-section">
+    <h2>👋 ¡Bienvenido de vuelta!</h2>
+    <div class="welcome-info">
+      <div class="info-card">
+        <strong>👤 Usuario</strong>
+        <div>{{ user.get_full_name|default:user.username }}</div>
+      </div>
+      <div class="info-card">
+        <strong>🌐 Empresa</strong>
+        <div>Tejos Olímpica S.A.</div>
+      </div>
+      <div class="info-card">
+        <strong>🔐 Nivel de Acceso</strong>
+        <div>
+          {% if user.is_superuser %}
+            <span style="background: linear-gradient(135deg, #ef4444, #dc2626); color: white; padding: 8px 16px; border-radius: 8px; display: inline-block; font-weight: 700;">🔑 ADMINISTRADOR</span>
+          {% elif user.is_staff %}
+            <span style="background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; padding: 8px 16px; border-radius: 8px; display: inline-block; font-weight: 700;">👨‍💼 STAFF</span>
+          {% else %}
+            <span style="background: linear-gradient(135deg, #6b7280, #4b5563); color: white; padding: 8px 16px; border-radius: 8px; display: inline-block; font-weight: 700;">👤 USUARIO</span>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
 
-<!-- Dashboard Cards with REAL DATA from Database -->
-<div class="dashboard-grid">
-    <!-- Productos -->
-    <div class="dashboard-card card-orange">
-        <div class="card-header">
-            <div class="card-icon">📦</div>
-            <div>
-                <h3 class="card-title">Productos</h3>
-            </div>
+  <!-- ESTADÍSTICAS -->
+  <div class="dashboard-stats">
+    <div class="stat-card productos">
+      <div class="stat-card-header">
+        <div>
+          <div class="stat-label">📦 Productos</div>
+          <div class="stat-value">{{ total_productos }}</div>
         </div>
-        <p class="card-value">{{ total_productos }}</p>
-        <p class="card-description">Productos en catálogo</p>
-        <div class="card-link">
-            <a href="/admin/inventario/producto/">Ver todos →</a>
-        </div>
+        <div class="stat-icon">📦</div>
+      </div>
+      <div class="stat-description">Productos en catálogo</div>
     </div>
 
-    <!-- Pedidos -->
-    <div class="dashboard-card card-blue">
-        <div class="card-header">
-            <div class="card-icon">📋</div>
-            <div>
-                <h3 class="card-title">Pedidos</h3>
-            </div>
+    <div class="stat-card pedidos">
+      <div class="stat-card-header">
+        <div>
+          <div class="stat-label">📋 Pedidos Pendientes</div>
+          <div class="stat-value">{{ pedidos_pendientes }}</div>
         </div>
-        <p class="card-value">{{ pedidos_pendientes }}</p>
-        <p class="card-description">Órdenes pendientes</p>
-        <div class="card-link">
-            <a href="/admin/pedidos/pedido/">Gestionar →</a>
-        </div>
+        <div class="stat-icon">⏳</div>
+      </div>
+      <div class="stat-description">Órdenes sin procesar</div>
     </div>
 
-    <!-- Clientes -->
-    <div class="dashboard-card card-teal">
-        <div class="card-header">
-            <div class="card-icon">👥</div>
-            <div>
-                <h3 class="card-title">Clientes</h3>
-            </div>
+    <div class="stat-card clientes">
+      <div class="stat-card-header">
+        <div>
+          <div class="stat-label">👥 Clientes Registrados</div>
+          <div class="stat-value">{{ total_clientes }}</div>
         </div>
-        <p class="card-value">{{ total_clientes }}</p>
-        <p class="card-description">Clientes registrados</p>
-        <div class="card-link">
-            <a href="/admin/usuarios/usuario/">Ver clientes →</a>
-        </div>
+        <div class="stat-icon">👥</div>
+      </div>
+      <div class="stat-description">Clientes activos</div>
     </div>
 
-    <!-- Ingresos -->
-    <div class="dashboard-card card-red">
-        <div class="card-header">
-            <div class="card-icon">💰</div>
-            <div>
-                <h3 class="card-title">Ingresos</h3>
-            </div>
+    <div class="stat-card ingresos">
+      <div class="stat-card-header">
+        <div>
+          <div class="stat-label">💰 Ingresos Totales</div>
+          <div class="stat-value">${{ ingresos_totales|floatformat:0 }}</div>
         </div>
-        <p class="card-value">${{ ingresos_totales|floatformat:0 }}</p>
-        <p class="card-description">Ingresos totales</p>
-        <div class="card-link">
-            <a href="/admin/pedidos/pedido/">Ver pedidos →</a>
-        </div>
+        <div class="stat-icon">💵</div>
+      </div>
+      <div class="stat-description">Ventas completadas</div>
     </div>
 
-    <!-- Categorías -->
-    <div class="dashboard-card card-purple">
-        <div class="card-header">
-            <div class="card-icon">🏷️</div>
-            <div>
-                <h3 class="card-title">Categorías</h3>
-            </div>
+    <div class="stat-card categorias">
+      <div class="stat-card-header">
+        <div>
+          <div class="stat-label">📂 Categorías</div>
+          <div class="stat-value">{{ total_categorias }}</div>
         </div>
-        <p class="card-value">{{ total_categorias }}</p>
-        <p class="card-description">Categorías de productos</p>
-        <div class="card-link">
-            <a href="/admin/catalogo/categoria/">Administrar →</a>
-        </div>
+        <div class="stat-icon">📂</div>
+      </div>
+      <div class="stat-description">Categorías de productos</div>
     </div>
 
-    <!-- Cotizaciones -->
-    <div class="dashboard-card card-green">
-        <div class="card-header">
-            <div class="card-icon">📄</div>
-            <div>
-                <h3 class="card-title">Cotizaciones</h3>
-            </div>
+    <div class="stat-card cotizaciones">
+      <div class="stat-card-header">
+        <div>
+          <div class="stat-label">💬 Cotizaciones Pendientes</div>
+          <div class="stat-value">{{ cotizaciones_pendientes }}</div>
         </div>
-        <p class="card-value">{{ cotizaciones_pendientes }}</p>
-        <p class="card-description">Cotizaciones pendientes</p>
-        <div class="card-link">
-            <a href="/admin/cotizaciones/cotizacion/">Ver todas →</a>
-        </div>
+        <div class="stat-icon">💬</div>
+      </div>
+      <div class="stat-description">Propuestas por responder</div>
     </div>
+  </div>
+
+  <!-- ACCIONES RÁPIDAS -->
+  <div class="quick-actions">
+    <h3>⚡ Acciones Rápidas</h3>
+    <div class="actions-grid">
+      <a href="/admin/inventario/producto/" class="action-btn">➕ Nuevo Producto</a>
+      <a href="/admin/pedidos/pedido/" class="action-btn">📋 Ver Pedidos</a>
+      <a href="/admin/cotizaciones/cotizacion/" class="action-btn">💬 Ver Cotizaciones</a>
+      <a href="/admin/ventas/factura/" class="action-btn">🧾 Ver Facturas</a>
+      <a href="/admin/auditorias/auditlog/" class="action-btn">📊 Ver Auditoría</a>
+      <a href="/admin/logout/" class="action-btn">🚪 Cerrar Sesión</a>
+    </div>
+  </div>
+
+  <!-- MÓDULOS ORGANIZADOS -->
+  <div class="modules-section">
+    <!-- AUDITORÍAS -->
+    <div class="module-group auditorias">
+      <div class="module-header">🔍 Auditorías</div>
+      <div class="module-items">
+        <a href="/admin/auditorias/auditlog/" class="module-link">📊 Registros de Auditoría</a>
+        <a href="/admin/auditorias/historialproducto/" class="module-link">📦 Historial Productos</a>
+        <a href="/admin/auditorias/historialpedido/" class="module-link">📋 Historial Pedidos</a>
+        <a href="/admin/auditorias/historialcotizacion/" class="module-link">💬 Historial Cotizaciones</a>
+        <a href="/admin/auditorias/historialfactura/" class="module-link">🧾 Historial Facturas</a>
+        <a href="/admin/auditorias/historialcliente/" class="module-link">👥 Historial Clientes</a>
+        <a href="/admin/auditorias/historialcategoria/" class="module-link">📂 Historial Categorías</a>
+      </div>
+    </div>
+
+    <!-- COTIZACIONES -->
+    <div class="module-group cotizaciones">
+      <div class="module-header">💬 Cotizaciones</div>
+      <div class="module-items">
+        <a href="/admin/cotizaciones/cotizacion/" class="module-link">📝 Gestionar Cotizaciones</a>
+      </div>
+    </div>
+
+    <!-- FACTURACIÓN -->
+    <div class="module-group facturacion">
+      <div class="module-header">💳 Facturación y Ventas</div>
+      <div class="module-items">
+        <a href="/admin/ventas/factura/" class="module-link">🧾 Facturas</a>
+        <a href="/admin/ventas/itemfactura/" class="module-link">📋 Items de Factura</a>
+      </div>
+    </div>
+
+    <!-- INVENTARIO -->
+    <div class="module-group inventario">
+      <div class="module-header">📦 Inventario</div>
+      <div class="module-items">
+        <a href="/admin/inventario/categoria/" class="module-link">📂 Categorías</a>
+        <a href="/admin/inventario/producto/" class="module-link">📦 Productos</a>
+      </div>
+    </div>
+
+    <!-- PEDIDOS -->
+    <div class="module-group pedidos">
+      <div class="module-header">📋 Pedidos</div>
+      <div class="module-items">
+        <a href="/admin/pedidos/cliente/" class="module-link">👥 Clientes</a>
+        <a href="/admin/pedidos/pedido/" class="module-link">📋 Pedidos</a>
+      </div>
+    </div>
+
+    <!-- USUARIOS -->
+    <div class="module-group usuarios">
+      <div class="module-header">👥 Usuarios</div>
+      <div class="module-items">
+        <a href="/admin/usuarios/usuario/" class="module-link">👤 Gestionar Usuarios</a>
+      </div>
+    </div>
+  </div>
 </div>
-
-<!-- Secciones de Administración -->
-{% if app_list %}
-<h2 style="color: #2c3e50; margin-top: 40px; margin-bottom: 20px;">
-    🛠️ Administración del Sistema
-</h2>
-
-{% for app in app_list %}
-<div class="module">
-    <h2>{{ app.name }}</h2>
-    <table>
-        <tbody>
-            {% for model in app.models %}
-            <tr>
-                <td>
-                    <a href="{{ model.admin_url }}">{{ model.name }}</a>
-                </td>
-                <td>
-                    {% if model.add_url %}
-                    <a href="{{ model.add_url }}" class="addlink">+ Añadir</a>
-                    {% endif %}
-                    {% if model.change_url %}
-                    <a href="{{ model.change_url }}" class="changelink">✏️ Cambiar</a>
-                    {% endif %}
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
-{% endfor %}
-{% endif %}
-
 {% endblock %}

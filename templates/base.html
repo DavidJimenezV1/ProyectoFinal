@@ -8,7 +8,7 @@
 
   <!-- Bootstrap 5 (CDN) -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
-  <link href="{% static 'css/site.css' %}" rel="stylesheet"> {# opcional: tu CSS custom #}
+  <link href="{% static 'css/site.css' %}" rel="stylesheet">
 
   <style>
     :root { --brand:#2d6cdf; --accent:#ff7b8a; --muted:#666; }
@@ -23,12 +23,10 @@
     .hero-full { background: var(--brand); color: #fff; padding: 3rem 0; }
     .hero-full .container { max-width: 1140px; }
 
-    /* Navbar base tweaks */
     .navbar { z-index: 1100; }
     .navbar-toggler { border: none; }
     .navbar-toggler-icon { width: 1.4em; height: 1.2em; }
 
-    /* Desktop: center menu, small search */
     @media (min-width: 992px) {
       .nav-search { min-width: 240px; }
       .badge-cart { position: relative; top: -1px; left: -6px; }
@@ -36,7 +34,6 @@
       .navbar-collapse .dropdown-menu { position: absolute; }
     }
 
-    /* Mobile: collapse becomes a full-bleed panel (handled because collapse is outside container) */
     @media (max-width: 991.98px) {
       .collapse-panel-background {
         background: var(--brand);
@@ -55,57 +52,49 @@
       .collapse-panel-background .nav-search .btn { width: 44px; }
     }
   
-/* ---- Mobile visibility fixes: improve contrast for user menu, dropdown items and carrito icon ---- */
-@media (max-width: 991.98px) {
+    @media (max-width: 991.98px) {
+      .collapse-panel-background .dropdown-item {
+        color: #ffffff !important;
+        background: transparent;
+      }
+      .collapse-panel-background .dropdown-item:hover {
+        background: rgba(255,255,255,0.06);
+        color: #ffffff !important;
+      }
 
-  /* Dropdown items (Mi perfil / Panel Admin / Cerrar sesión) — texto blanco y fondo semitransparente al hover */
-  .collapse-panel-background .dropdown-item {
-    color: #ffffff !important;
-    background: transparent;
-  }
-  .collapse-panel-background .dropdown-item:hover {
-    background: rgba(255,255,255,0.06);
-    color: #ffffff !important;
-  }
+      .collapse-panel-background .btn-outline-secondary {
+        color: #ffffff !important;
+        border-color: rgba(255,255,255,0.18) !important;
+        background: transparent !important;
+      }
+      .collapse-panel-background .btn-outline-secondary:hover,
+      .collapse-panel-background .btn-outline-secondary:focus {
+        color: #ffffff !important;
+        background: rgba(255,255,255,0.04) !important;
+      }
 
-  /* User dropdown toggle (botón que muestra MarthaRozo) — borde ligeramente visible y texto blanco */
-  .collapse-panel-background .btn-outline-secondary {
-    color: #ffffff !important;
-    border-color: rgba(255,255,255,0.18) !important;
-    background: transparent !important;
-  }
-  .collapse-panel-background .btn-outline-secondary:hover,
-  .collapse-panel-background .btn-outline-secondary:focus {
-    color: #ffffff !important;
-    background: rgba(255,255,255,0.04) !important;
-  }
+      .collapse-panel-background .nav-link {
+        color: rgba(255,255,255,0.95) !important;
+      }
+      .collapse-panel-background .nav-link:hover {
+        color: #ffffff !important;
+      }
 
-  /* Asegurar que los nav-links y botones del panel son blancos y legibles */
-  .collapse-panel-background .nav-link {
-    color: rgba(255,255,255,0.95) !important;
-  }
-  .collapse-panel-background .nav-link:hover {
-    color: #ffffff !important;
-  }
+      .collapse-panel-background a[aria-label="Carrito"] .fs-5 {
+        background: #ffffff;
+        color: var(--brand);
+        padding: .18rem .28rem;
+        border-radius: .28rem;
+        display: inline-block;
+        line-height: 1;
+      }
 
-  /* Hacemos que el icono del carrito tenga un fondo blanco pequeño para que destaque (como en desktop) */
-  .collapse-panel-background a[aria-label="Carrito"] .fs-5 {
-    background: #ffffff;
-    color: var(--brand);
-    padding: .18rem .28rem;
-    border-radius: .28rem;
-    display: inline-block;
-    line-height: 1;
-  }
-
-  /* Ajuste del badge para que se vea correctamente sobre el panel azul */
-  .collapse-panel-background .badge {
-    box-shadow: 0 0 0 3px rgba(0,0,0,0.05);
-    transform: translate(0, -6px);
-  }
-}
-
-</style>
+      .collapse-panel-background .badge {
+        box-shadow: 0 0 0 3px rgba(0,0,0,0.05);
+        transform: translate(0, -6px);
+      }
+    }
+  </style>
 
   {% block head %}{% endblock %}
 </head>
@@ -113,22 +102,18 @@
   <!-- NAVBAR -->
   <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
     <div class="container-fluid">
-      <!-- container with brand and toggler only -->
       <div class="container site-inner d-flex align-items-center justify-content-between">
         <a class="navbar-brand brand me-3" href="{% url 'home' %}">Tejos Olímpica</a>
 
-        <!-- On desktop the collapse will be shown inline; toggler sits on the right -->
         <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Alternar navegación">
           <span class="navbar-toggler-icon"></span>
         </button>
       </div>
 
-      <!-- Collapse moved outside the .container so the panel can be full-bleed on mobile -->
       <div class="collapse navbar-collapse" id="mainNav">
         <div class="w-100 collapse-panel-background">
           <div class="container site-inner">
             <div class="row align-items-start">
-              <!-- main nav links (left/top) -->
               <div class="col-12 col-lg-auto">
                 <ul class="navbar-nav mb-2 mb-lg-0">
                   <li class="nav-item"><a class="nav-link" href="{% url 'home' %}">Inicio</a></li>
@@ -138,7 +123,6 @@
                 </ul>
               </div>
 
-              <!-- search and actions (right on desktop; stacked on mobile) -->
               <div class="col-12 col-lg d-flex flex-column flex-lg-row align-items-start align-items-lg-center mt-3 mt-lg-0">
                 <form class="d-flex nav-search me-lg-3 w-100" method="get" action="{% url 'catalogo:lista_productos' %}">
                   <input class="form-control form-control-sm me-2" type="search" name="q" placeholder="Buscar productos..." aria-label="Buscar">
@@ -164,12 +148,7 @@
                           <li><a class="dropdown-item" href="{% url 'admin:index' %}">Panel Admin</a></li>
                         {% endif %}
                         <li><hr class="dropdown-divider"></li>
-                        <li>
-                          <form method="post" action="{% url 'logout' %}">
-                            {% csrf_token %}
-                            <button class="dropdown-item" type="submit">Cerrar sesión</button>
-                          </form>
-                        </li>
+                        <li><a class="dropdown-item" href="{% url 'usuarios:logout' %}">🚪 Cerrar sesión</a></li>
                       </ul>
                     </div>
                   {% else %}
@@ -180,14 +159,13 @@
                   {% endif %}
                 </div>
               </div>
-            </div> <!-- /.row -->
-          </div> <!-- /.container -->
-        </div> <!-- /.w-100 -->
-      </div> <!-- /.collapse -->
-    </div> <!-- /.container-fluid -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </nav>
 
-  <!-- main -->
   <main class="container-fluid py-4">
     {% block hero %}{% endblock %}
 

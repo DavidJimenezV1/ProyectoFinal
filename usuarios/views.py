@@ -3,6 +3,7 @@ from django.contrib.auth import login, logout
 from django.contrib import messages
 from django.views.generic import CreateView
 from django.urls import reverse_lazy
+from django.http import HttpResponseRedirect
 from .forms import RegistroClienteForm, LoginForm
 from .models import Usuario
 
@@ -13,7 +14,6 @@ class RegistroClienteView(CreateView):
     success_url = reverse_lazy('login')
     
     def form_valid(self, form):
-        # Asignar tipo de usuario como cliente
         user = form.save(commit=False)
         user.tipo_usuario = Usuario.CLIENTE
         user.save()
@@ -34,9 +34,10 @@ def login_view(request):
     return render(request, 'usuarios/login.html', {'form': form})
 
 def logout_view(request):
+    """Vista para cerrar sesión - Funciona con GET y POST"""
     logout(request)
     messages.success(request, "Has cerrado sesión correctamente.")
-    return redirect('home')
+    return HttpResponseRedirect('/')
 
 def perfil_usuario(request):
     return render(request, 'usuarios/perfil.html')

@@ -1,38 +1,47 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Iniciar Sesión - Tejos Olímpica{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
+<div class="container mt-5 mb-5">
     <div class="row justify-content-center">
         <div class="col-md-6">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h3 class="my-2">Iniciar Sesión</h3>
-                </div>
-                <div class="card-body">
-                    <form method="post">
+            <div class="card shadow-lg border-0 rounded-lg">
+                <div class="card-body p-5">
+                    <h2 class="card-title text-center mb-4" style="color: #2d6cdf; font-weight: 900;">Iniciar Sesión</h2>
+                    
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="post" novalidate>
                         {% csrf_token %}
                         
-                        {% if form.errors %}
-                        <div class="alert alert-danger">
-                            <strong>Error:</strong> Usuario o contraseña incorrectos.
-                        </div>
-                        {% endif %}
-                        
                         <div class="mb-3">
-                            <label for="{{ form.username.id_for_label }}">Usuario o Email:</label>
                             {{ form.username }}
                             {% if form.username.errors %}
-                            <small class="text-danger">{{ form.username.errors }}</small>
+                                <div class="alert alert-danger mt-2">
+                                    {% for error in form.username.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
                             {% endif %}
                         </div>
-                        
+
                         <div class="mb-3">
-                            <label for="{{ form.password.id_for_label }}">Contraseña:</label>
                             {{ form.password }}
                             {% if form.password.errors %}
-                            <small class="text-danger">{{ form.password.errors }}</small>
+                                <div class="alert alert-danger mt-2">
+                                    {% for error in form.password.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
                             {% endif %}
                         </div>
                         
@@ -42,12 +51,42 @@
                     </form>
                     
                     <div class="mt-3 text-center">
-                        <p>¿No tienes una cuenta? <a href="{% url 'usuarios:registro' %}">Regístrate aquí</a>
-			<p><a href="{% url 'password_reset' %}">¿Olvidaste tu contraseña?</a></p>
+                        <p>¿No tienes una cuenta? <a href="{% url 'usuarios:registro' %}">Regístrate aquí</a></p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    .form-control {
+        border-radius: 8px;
+        border: 2px solid #e5e7eb;
+        padding: 12px 16px;
+        font-size: 14px;
+    }
+    
+    .form-control:focus {
+        border-color: #2d6cdf;
+        box-shadow: 0 0 0 3px rgba(45, 108, 223, 0.1);
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #2d6cdf 0%, #667eea 100%);
+        border: none;
+        border-radius: 8px;
+        padding: 12px 32px;
+        font-weight: 900;
+        width: 100%;
+    }
+    
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #1e5ab8 0%, #5569d8 100%);
+    }
+    
+    .card {
+        border-radius: 12px;
+    }
+</style>
 {% endblock %}

@@ -1,0 +1,44 @@
+/* ==================== OCULTAR SIDEBAR - MÁXIMA PRIORIDAD ==================== */
+#sidebar {
+  display: none !important;
+  visibility: hidden !important;
+  width: 0 !important;
+  height: 0 !important;
+  overflow: hidden !important;
+  position: absolute !important;
+  left: -9999px !important;
+  top: -9999px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  background: transparent !important;
+  z-index: -9999 !important;
+  flex: 0 !important;
+}
+
+/* Forzar contenedor a ancho completo */
+#container {
+  display: block !important;
+  margin-left: 0 !important;
+  width: 100% !important;
+  grid-template-columns: 1fr !important;
+}
+
+/* Main content sin margen izquierdo */
+#main-content {
+  margin-left: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+/* Body sin espacios */
+body {
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+}
+
+/* Breadcrumbs sin margen izquierdo */
+.breadcrumbs {
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+}

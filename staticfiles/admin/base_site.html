@@ -1,0 +1,528 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}{{ block.super }}{% endblock %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'css/hide_sidebar.css' %}">
+  <style>
+    /* ==================== NAVBAR MEJORADA ==================== */
+    #header {
+      background: linear-gradient(90deg, #1e3c72 0%, #2a5298 50%, #667eea 100%) !important;
+      padding: 15px 40px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+      border-bottom: 4px solid #ff6b35 !important;
+      margin-bottom: 0 !important;
+      width: 100% !important;
+      margin-left: 0 !important;
+      margin-right: 0 !important;
+    }
+
+    #header h1 {
+      color: #ffffff !important;
+      font-size: 18px !important;
+      font-weight: 900 !important;
+      margin: 0 !important;
+      display: flex !important;
+      align-items: center !important;
+      gap: 10px !important;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+      flex: 1 !important;
+    }
+
+    #header h1::before {
+      content: "🏆" !important;
+      font-size: 24px !important;
+    }
+
+    /* ==================== BOTONES DE USUARIO ==================== */
+    #user-tools {
+      background: transparent !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      display: flex !important;
+      gap: 12px !important;
+      align-items: center !important;
+      border: none !important;
+    }
+
+    #user-tools strong {
+      color: #ffffff !important;
+      font-size: 13px !important;
+      font-weight: 900 !important;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
+    }
+
+    #user-tools a {
+      color: #ffffff !important;
+      font-weight: 900 !important;
+      font-size: 13px !important;
+      padding: 10px 18px !important;
+      border-radius: 6px !important;
+      transition: all 0.3s ease !important;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2) !important;
+      text-decoration: none !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 6px !important;
+    }
+
+    #user-tools a:hover {
+      transform: translateY(-2px) !important;
+    }
+
+    /* Cambiar contraseña */
+    #user-tools a[href*="password_change"] {
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+    }
+
+    #user-tools a[href*="password_change"]:hover {
+      box-shadow: 0 6px 16px rgba(245, 158, 11, 0.4) !important;
+    }
+
+    /* Cerrar sesión / Logout */
+    #user-tools a[href*="logout"] {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+    }
+
+    #user-tools a[href*="logout"]:hover {
+      box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4) !important;
+    }
+
+    /* Volver al sitio - Si existe */
+    #user-tools a[href="/"] {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+    }
+
+    #user-tools a[href="/"]:hover {
+      box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4) !important;
+    }
+
+    /* ==================== CONTENIDO PRINCIPAL ==================== */
+    #main-content {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%) !important;
+      padding: 40px !important;
+    }
+
+    /* ==================== BIENVENIDA ==================== */
+    .welcome-section {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 25px;
+      border-radius: 8px;
+      color: white;
+      margin-bottom: 25px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .welcome-section h2 {
+      color: #ffffff;
+      font-size: 24px;
+      margin: 0 0 10px 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      font-weight: 900;
+    }
+
+    .welcome-info {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-top: 15px;
+    }
+
+    .info-card {
+      background: rgba(255, 255, 255, 0.15);
+      padding: 12px 15px;
+      border-radius: 6px;
+      border-left: 4px solid #fbbf24;
+      font-size: 13px;
+    }
+
+    .info-card strong {
+      display: block;
+      color: #fcd34d;
+      margin-bottom: 5px;
+      font-weight: 900;
+    }
+
+    /* ==================== DASHBOARD STATS ==================== */
+    .dashboard-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .stat-card {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      border-top: 4px solid;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    }
+
+    .stat-card.productos { border-top-color: #f59e0b; }
+    .stat-card.pedidos { border-top-color: #ef4444; }
+    .stat-card.clientes { border-top-color: #3b82f6; }
+    .stat-card.ingresos { border-top-color: #10b981; }
+    .stat-card.categorias { border-top-color: #8b5cf6; }
+    .stat-card.cotizaciones { border-top-color: #ec4899; }
+
+    .stat-label {
+      color: #6b7280;
+      font-size: 12px;
+      text-transform: uppercase;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
+      font-size: 28px;
+      font-weight: 900;
+      color: #1f2937;
+    }
+
+    .stat-icon {
+      font-size: 32px;
+      text-align: right;
+    }
+
+    .stat-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    /* ==================== ACCIONES RÁPIDAS ==================== */
+    .quick-actions-title {
+      color: #ffffff;
+      font-size: 20px;
+      font-weight: 900;
+      margin-bottom: 20px;
+      margin-top: 40px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+    }
+
+    .quick-actions-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 15px;
+      margin-bottom: 40px;
+    }
+
+    .quick-action-btn {
+      padding: 22px 20px;
+      border-radius: 8px;
+      text-align: center;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      border: none;
+      cursor: pointer;
+      font-weight: 900;
+      font-size: 14px;
+      color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+      min-height: 100px;
+    }
+
+    .quick-action-btn:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+    }
+
+    .btn-producto { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+    .btn-pedidos { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
+    .btn-cotizaciones { background: linear-gradient(135deg, #ec4899 0%, #db2777 100%); }
+    .btn-facturas { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); }
+    .btn-auditoria { background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%); }
+
+    /* ==================== MÓDULOS ==================== */
+    .module-section {
+      margin-bottom: 30px;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .module-header {
+      background: linear-gradient(90deg, var(--color-start) 0%, var(--color-end) 100%);
+      padding: 18px 25px;
+      font-size: 16px;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #ffffff;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    }
+
+    .module-section.auditorias .module-header { --color-start: #8b5cf6; --color-end: #7c3aed; }
+    .module-section.cotizaciones .module-header { --color-start: #ec4899; --color-end: #db2777; }
+    .module-section.facturacion .module-header { --color-start: #ef4444; --color-end: #dc2626; }
+    .module-section.inventario .module-header { --color-start: #f59e0b; --color-end: #d97706; }
+    .module-section.pedidos .module-header { --color-start: #3b82f6; --color-end: #1d4ed8; }
+    .module-section.usuarios .module-header { --color-start: #10b981; --color-end: #059669; }
+
+    .module-items {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 20px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 12px;
+    }
+
+    .module-link {
+      background: rgba(255, 255, 255, 0.12);
+      padding: 14px 16px;
+      border-radius: 6px;
+      color: #ffffff;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      border-left: 4px solid transparent;
+      font-size: 13px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .module-link:hover {
+      background: rgba(255, 255, 255, 0.22);
+      transform: translateX(4px);
+      border-left-color: #fbbf24;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      color: #ffffff;
+    }
+
+    @media (max-width: 768px) {
+      #header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      #user-tools {
+        width: 100%;
+        justify-content: space-around;
+        margin-top: 10px;
+      }
+
+      .quick-actions-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media (max-width: 480px) {
+      #header h1 {
+        font-size: 14px;
+      }
+
+      #user-tools a {
+        padding: 8px 10px !important;
+        font-size: 11px !important;
+      }
+
+      .quick-actions-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .quick-action-btn {
+        font-size: 11px;
+        min-height: 80px;
+        padding: 15px 10px;
+      }
+
+      #main-content {
+        padding: 20px !important;
+      }
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+  <!-- SECCIÓN DE BIENVENIDA -->
+  <div class="welcome-section">
+    <h2>👋 ¡Bienvenido de vuelta!</h2>
+    <div class="welcome-info">
+      <div class="info-card">
+        <strong>👤 Usuario:</strong>
+        {{ user.get_full_name|default:user.username }}
+      </div>
+      <div class="info-card">
+        <strong>🌐 Sitio:</strong>
+        Tejos Olímpica
+      </div>
+      <div class="info-card">
+        <strong>🔐 Rol:</strong>
+        {% if user.is_superuser %}
+          <span style="background: #ef4444; padding: 3px 8px; border-radius: 3px; color: white; font-weight: 900;">Administrador</span>
+        {% elif user.is_staff %}
+          <span style="background: #3b82f6; padding: 3px 8px; border-radius: 3px; color: white; font-weight: 900;">Staff</span>
+        {% else %}
+          <span style="background: #6b7280; padding: 3px 8px; border-radius: 3px; color: white; font-weight: 900;">Usuario</span>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- ESTADÍSTICAS -->
+  <div class="dashboard-stats">
+    <div class="stat-card productos">
+      <div class="stat-card-header">
+        <div>
+          <div class="stat-label">📦 Productos</div>
+          <div class="stat-value">{{ total_productos }}</div>
+        </div>
+        <div class="stat-icon">📊</div>
+      </div>
+    </div>
+
+    <div class="stat-card pedidos">
+      <div class="stat-card-header">
+        <div>
+          <div class="stat-label">📋 Pedidos Pendientes</div>
+          <div class="stat-value">{{ pedidos_pendientes }}</div>
+        </div>
+        <div class="stat-icon">⏳</div>
+      </div>
+    </div>
+
+    <div class="stat-card clientes">
+      <div class="stat-card-header">
+        <div>
+          <div class="stat-label">👥 Clientes Registrados</div>
+          <div class="stat-value">{{ total_clientes }}</div>
+        </div>
+        <div class="stat-icon">👨‍💼</div>
+      </div>
+    </div>
+
+    <div class="stat-card ingresos">
+      <div class="stat-card-header">
+        <div>
+          <div class="stat-label">💰 Ingresos Totales</div>
+          <div class="stat-value">${{ ingresos_totales|floatformat:0 }}</div>
+        </div>
+        <div class="stat-icon">💵</div>
+      </div>
+    </div>
+
+    <div class="stat-card categorias">
+      <div class="stat-card-header">
+        <div>
+          <div class="stat-label">📂 Categorías</div>
+          <div class="stat-value">{{ total_categorias }}</div>
+        </div>
+        <div class="stat-icon">📁</div>
+      </div>
+    </div>
+
+    <div class="stat-card cotizaciones">
+      <div class="stat-card-header">
+        <div>
+          <div class="stat-label">💬 Cotizaciones Pendientes</div>
+          <div class="stat-value">{{ cotizaciones_pendientes }}</div>
+        </div>
+        <div class="stat-icon">📝</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACCIONES RÁPIDAS -->
+  <h3 class="quick-actions-title">⚡ Acciones Rápidas</h3>
+  <div class="quick-actions-grid">
+    <a href="/admin/inventario/producto/" class="quick-action-btn btn-producto">
+      ➕<br>Nuevo Producto
+    </a>
+    <a href="/admin/pedidos/pedido/" class="quick-action-btn btn-pedidos">
+      📋<br>Ver Pedidos
+    </a>
+    <a href="/admin/cotizaciones/cotizacion/" class="quick-action-btn btn-cotizaciones">
+      💬<br>Ver Cotizaciones
+    </a>
+    <a href="/admin/ventas/factura/" class="quick-action-btn btn-facturas">
+      🧾<br>Ver Facturas
+    </a>
+    <a href="/admin/auditorias/auditlog/" class="quick-action-btn btn-auditoria">
+      📊<br>Ver Auditoría
+    </a>
+  </div>
+
+  <!-- MÓDULOS -->
+  <div class="module-section auditorias">
+    <div class="module-header">🔍 Auditorías</div>
+    <div class="module-items">
+      <a href="/admin/auditorias/auditlog/" class="module-link">📊 Registros de Auditoría</a>
+      <a href="/admin/auditorias/historialproducto/" class="module-link">📦 Historial Productos</a>
+      <a href="/admin/auditorias/historialpedido/" class="module-link">📋 Historial Pedidos</a>
+      <a href="/admin/auditorias/historialcotizacion/" class="module-link">💬 Historial Cotizaciones</a>
+      <a href="/admin/auditorias/historialfactura/" class="module-link">🧾 Historial Facturas</a>
+      <a href="/admin/auditorias/historialcliente/" class="module-link">👥 Historial Clientes</a>
+      <a href="/admin/auditorias/historialcategoria/" class="module-link">📂 Historial Categorías</a>
+    </div>
+  </div>
+
+  <div class="module-section cotizaciones">
+    <div class="module-header">💬 Cotizaciones</div>
+    <div class="module-items">
+      <a href="/admin/cotizaciones/cotizacion/" class="module-link">📝 Gestionar Cotizaciones</a>
+    </div>
+  </div>
+
+  <div class="module-section facturacion">
+    <div class="module-header">💳 Facturación y Ventas</div>
+    <div class="module-items">
+      <a href="/admin/ventas/factura/" class="module-link">🧾 Facturas</a>
+      <a href="/admin/ventas/itemfactura/" class="module-link">📋 Items de Factura</a>
+    </div>
+  </div>
+
+  <div class="module-section inventario">
+    <div class="module-header">📦 Inventario</div>
+    <div class="module-items">
+      <a href="/admin/inventario/categoria/" class="module-link">📂 Categorías</a>
+      <a href="/admin/inventario/producto/" class="module-link">📦 Productos</a>
+    </div>
+  </div>
+
+  <div class="module-section pedidos">
+    <div class="module-header">📋 Pedidos</div>
+    <div class="module-items">
+      <a href="/admin/pedidos/cliente/" class="module-link">👥 Clientes</a>
+      <a href="/admin/pedidos/pedido/" class="module-link">📋 Pedidos</a>
+    </div>
+  </div>
+
+  <div class="module-section usuarios">
+    <div class="module-header">👥 Usuarios</div>
+    <div class="module-items">
+      <a href="/admin/usuarios/usuario/" class="module-link">👤 Gestionar Usuarios</a>
+    </div>
+  </div>
+
+  {{ block.super }}
+{% endblock %}

@@ -15,12 +15,12 @@ from auditorias.models import (
 
 _thread_locals = {}
 
-def get_current_user():
+def obtener_usuario_actual():
     """Obtiene el usuario actual de la request"""
     usuario = _thread_locals.get('user', None)
     return usuario
 
-def set_current_user(user):
+def establecer_usuario_actual(user):
     """Establece el usuario actual"""
     _thread_locals['user'] = user
 
@@ -29,20 +29,26 @@ def set_current_user(user):
 @receiver(post_save, sender='inventario.Producto', dispatch_uid='registrar_cambio_producto')
 def registrar_cambio_producto(sender, instance, created, **kwargs):
     """Registra cuando se crea o actualiza un producto"""
-    usuario = get_current_user()
+    usuario = obtener_usuario_actual()
     if not usuario:
         return
     
     accion = 'CREATE' if created else 'UPDATE'
     
     try:
+        # Texto correcto en español
+        if accion == 'CREATE':
+            descripcion = f"Creación de producto: {instance.nombre}"
+        else:
+            descripcion = f"Actualización de producto: {instance.nombre}"
+        
         audit_log = AuditLog.objects.create(
             usuario=usuario,
             accion=accion,
             modelo='Producto',
             objeto_id=instance.id,
             objeto_nombre=f"{instance.codigo} - {instance.nombre}",
-            descripcion=f"{accion} de producto: {instance.nombre}"
+            descripcion=descripcion
         )
         
         if accion == 'UPDATE':
@@ -60,7 +66,7 @@ def registrar_cambio_producto(sender, instance, created, **kwargs):
 @receiver(post_delete, sender='inventario.Producto', dispatch_uid='registrar_eliminacion_producto')
 def registrar_eliminacion_producto(sender, instance, **kwargs):
     """Registra cuando se elimina un producto"""
-    usuario = get_current_user()
+    usuario = obtener_usuario_actual()
     if not usuario:
         return
     
@@ -86,20 +92,25 @@ def registrar_eliminacion_producto(sender, instance, **kwargs):
 @receiver(post_save, sender='inventario.Categoria', dispatch_uid='registrar_cambio_categoria')
 def registrar_cambio_categoria(sender, instance, created, **kwargs):
     """Registra cuando se crea o actualiza una categoría"""
-    usuario = get_current_user()
+    usuario = obtener_usuario_actual()
     if not usuario:
         return
     
     accion = 'CREATE' if created else 'UPDATE'
     
     try:
+        if accion == 'CREATE':
+            descripcion = f"Creación de categoría: {instance.nombre}"
+        else:
+            descripcion = f"Actualización de categoría: {instance.nombre}"
+        
         audit_log = AuditLog.objects.create(
             usuario=usuario,
             accion=accion,
             modelo='Categoria',
             objeto_id=instance.id,
             objeto_nombre=instance.nombre,
-            descripcion=f"{accion} de categoría: {instance.nombre}"
+            descripcion=descripcion
         )
         
         HistorialCategoria.objects.create(
@@ -112,33 +123,37 @@ def registrar_cambio_categoria(sender, instance, created, **kwargs):
         print(f"Error registrando categoría: {e}")
 
 
-# ==================== PEDIDOS ====================
-
 @receiver(post_save, sender='pedidos.Pedido', dispatch_uid='registrar_cambio_pedido')
 def registrar_cambio_pedido(sender, instance, created, **kwargs):
     """Registra cuando se crea o actualiza un pedido"""
-    usuario = get_current_user()
+    usuario = obtener_usuario_actual()
     if not usuario:
         return
     
     accion = 'CREATE' if created else 'UPDATE'
     
     try:
+        if accion == 'CREATE':
+            descripcion = f"Creación de pedido: Pedido #{instance.id}"
+        else:
+            descripcion = f"Actualización de pedido: Pedido #{instance.id}"
+        
         audit_log = AuditLog.objects.create(
             usuario=usuario,
             accion=accion,
             modelo='Pedido',
             objeto_id=instance.id,
             objeto_nombre=f"Pedido #{instance.id}",
-            descripcion=f"{accion} de pedido #{instance.id}"
+            descripcion=descripcion
         )
         
-        HistorialPedido.objects.create(
-            audit_log=audit_log,
-            pedido_id=instance.id,
-            estado_nuevo=instance.estado,
-            cliente_nuevo=f"{instance.cliente.nombre} {instance.cliente.apellido}" if instance.cliente else "Sin cliente"
-        )
+        if accion == 'UPDATE':
+            HistorialPedido.objects.create(
+                audit_log=audit_log,
+                pedido_id=instance.id,
+                estado_nuevo=instance.estado,
+                cliente_nuevo=str(instance.cliente)
+            )
     except Exception as e:
         print(f"Error registrando pedido: {e}")
 
@@ -146,7 +161,7 @@ def registrar_cambio_pedido(sender, instance, created, **kwargs):
 @receiver(post_delete, sender='pedidos.Pedido', dispatch_uid='registrar_eliminacion_pedido')
 def registrar_eliminacion_pedido(sender, instance, **kwargs):
     """Registra cuando se elimina un pedido"""
-    usuario = get_current_user()
+    usuario = obtener_usuario_actual()
     if not usuario:
         return
     
@@ -157,7 +172,7 @@ def registrar_eliminacion_pedido(sender, instance, **kwargs):
             modelo='Pedido',
             objeto_id=instance.id,
             objeto_nombre=f"Pedido #{instance.id}",
-            descripcion=f"Eliminación de pedido #{instance.id}"
+            descripcion=f"Eliminación de pedido: Pedido #{instance.id}"
         )
         
         HistorialPedido.objects.create(
@@ -169,66 +184,37 @@ def registrar_eliminacion_pedido(sender, instance, **kwargs):
         print(f"Error registrando eliminación de pedido: {e}")
 
 
-@receiver(post_save, sender='pedidos.Cliente', dispatch_uid='registrar_cambio_cliente')
-def registrar_cambio_cliente(sender, instance, created, **kwargs):
-    """Registra cuando se crea o actualiza un cliente"""
-    usuario = get_current_user()
-    if not usuario:
-        return
-    
-    accion = 'CREATE' if created else 'UPDATE'
-    
-    try:
-        audit_log = AuditLog.objects.create(
-            usuario=usuario,
-            accion=accion,
-            modelo='Cliente',
-            objeto_id=instance.id,
-            objeto_nombre=f"{instance.nombre} {instance.apellido}",
-            descripcion=f"{accion} de cliente: {instance.nombre} {instance.apellido}"
-        )
-        
-        HistorialCliente.objects.create(
-            audit_log=audit_log,
-            cliente_id=instance.id,
-            cambios={
-                'nombre': instance.nombre,
-                'email': instance.email,
-                'telefono': instance.telefono
-            }
-        )
-    except Exception as e:
-        print(f"Error registrando cliente: {e}")
-
-
-# ==================== COTIZACIONES ====================
-
 @receiver(post_save, sender='cotizaciones.Cotizacion', dispatch_uid='registrar_cambio_cotizacion')
 def registrar_cambio_cotizacion(sender, instance, created, **kwargs):
     """Registra cuando se crea o actualiza una cotización"""
-    usuario = get_current_user()
+    usuario = obtener_usuario_actual()
     if not usuario:
         return
     
     accion = 'CREATE' if created else 'UPDATE'
     
     try:
+        if accion == 'CREATE':
+            descripcion = f"Creación de cotización: Cotización #{instance.id}"
+        else:
+            descripcion = f"Actualización de cotización: Cotización #{instance.id}"
+        
         audit_log = AuditLog.objects.create(
             usuario=usuario,
             accion=accion,
             modelo='Cotizacion',
             objeto_id=instance.id,
             objeto_nombre=f"Cotización #{instance.id}",
-            descripcion=f"{accion} de cotización #{instance.id}",
-            datos_nuevos={'total': str(instance.total), 'estado': instance.estado}
+            descripcion=descripcion
         )
         
-        HistorialCotizacion.objects.create(
-            audit_log=audit_log,
-            cotizacion_id=instance.id,
-            estado_nuevo=instance.estado,
-            monto_nuevo=instance.total
-        )
+        if accion == 'UPDATE':
+            HistorialCotizacion.objects.create(
+                audit_log=audit_log,
+                cotizacion_id=instance.id,
+                estado_nuevo=instance.estado,
+                monto_nuevo=instance.total
+            )
     except Exception as e:
         print(f"Error registrando cotización: {e}")
 
@@ -236,7 +222,7 @@ def registrar_cambio_cotizacion(sender, instance, created, **kwargs):
 @receiver(post_delete, sender='cotizaciones.Cotizacion', dispatch_uid='registrar_eliminacion_cotizacion')
 def registrar_eliminacion_cotizacion(sender, instance, **kwargs):
     """Registra cuando se elimina una cotización"""
-    usuario = get_current_user()
+    usuario = obtener_usuario_actual()
     if not usuario:
         return
     
@@ -247,114 +233,49 @@ def registrar_eliminacion_cotizacion(sender, instance, **kwargs):
             modelo='Cotizacion',
             objeto_id=instance.id,
             objeto_nombre=f"Cotización #{instance.id}",
-            descripcion=f"Eliminación de cotización #{instance.id}"
+            descripcion=f"Eliminación de cotización: Cotización #{instance.id}"
         )
         
         HistorialCotizacion.objects.create(
             audit_log=audit_log,
             cotizacion_id=instance.id,
-            estado_nuevo='eliminado'
+            estado_nuevo='eliminada'
         )
     except Exception as e:
         print(f"Error registrando eliminación de cotización: {e}")
 
 
-# ==================== DETALLES DE COTIZACIONES ====================
-
-@receiver(post_save, sender='cotizaciones.DetalleCotizacion', dispatch_uid='registrar_cambio_detalle_cotizacion')
-def registrar_cambio_detalle_cotizacion(sender, instance, created, **kwargs):
-    """Registra cuando se agrega o actualiza un producto en una cotización"""
-    usuario = get_current_user()
-    if not usuario:
-        return
-    
-    accion = 'CREATE' if created else 'UPDATE'
-    
-    try:
-        descripcion = f"{accion} de producto en cotización #{instance.cotizacion.id}: {instance.producto.nombre} (x{instance.cantidad})"
-        
-        audit_log = AuditLog.objects.create(
-            usuario=usuario,
-            accion=accion,
-            modelo='Cotizacion',
-            objeto_id=instance.cotizacion.id,
-            objeto_nombre=f"Cotización #{instance.cotizacion.id}",
-            descripcion=descripcion,
-            datos_nuevos={
-                'producto': instance.producto.nombre,
-                'cantidad': instance.cantidad,
-                'precio_unitario': str(instance.precio_unitario or instance.producto.precio),
-                'subtotal': str(instance.subtotal)
-            }
-        )
-        
-        HistorialCotizacion.objects.create(
-            audit_log=audit_log,
-            cotizacion_id=instance.cotizacion.id,
-            estado_nuevo=instance.cotizacion.estado,
-            monto_nuevo=instance.cotizacion.total
-        )
-    except Exception as e:
-        print(f"Error registrando detalle de cotización: {e}")
-
-
-@receiver(post_delete, sender='cotizaciones.DetalleCotizacion', dispatch_uid='registrar_eliminacion_detalle_cotizacion')
-def registrar_eliminacion_detalle_cotizacion(sender, instance, **kwargs):
-    """Registra cuando se elimina un producto de una cotización"""
-    usuario = get_current_user()
-    if not usuario:
-        return
-    
-    try:
-        descripcion = f"Eliminación de producto en cotización #{instance.cotizacion.id}: {instance.producto.nombre}"
-        
-        audit_log = AuditLog.objects.create(
-            usuario=usuario,
-            accion='DELETE',
-            modelo='Cotizacion',
-            objeto_id=instance.cotizacion.id,
-            objeto_nombre=f"Cotización #{instance.cotizacion.id}",
-            descripcion=descripcion
-        )
-        
-        HistorialCotizacion.objects.create(
-            audit_log=audit_log,
-            cotizacion_id=instance.cotizacion.id,
-            estado_nuevo=instance.cotizacion.estado,
-            monto_nuevo=instance.cotizacion.total
-        )
-    except Exception as e:
-        print(f"Error registrando eliminación de detalle de cotización: {e}")
-
-
-# ==================== VENTAS / FACTURAS ====================
-
 @receiver(post_save, sender='ventas.Factura', dispatch_uid='registrar_cambio_factura')
 def registrar_cambio_factura(sender, instance, created, **kwargs):
     """Registra cuando se crea o actualiza una factura"""
-    usuario = get_current_user()
+    usuario = obtener_usuario_actual()
     if not usuario:
         return
     
     accion = 'CREATE' if created else 'UPDATE'
     
     try:
+        if accion == 'CREATE':
+            descripcion = f"Creación de factura: {instance.numero}"
+        else:
+            descripcion = f"Actualización de factura: {instance.numero}"
+        
         audit_log = AuditLog.objects.create(
             usuario=usuario,
             accion=accion,
             modelo='Factura',
             objeto_id=instance.id,
             objeto_nombre=f"Factura #{instance.numero}",
-            descripcion=f"{accion} de factura: {instance.numero}",
-            datos_nuevos={'total': str(instance.total), 'estado': instance.estado}
+            descripcion=descripcion
         )
         
-        HistorialFactura.objects.create(
-            audit_log=audit_log,
-            factura_id=instance.id,
-            estado_nuevo=instance.estado,
-            monto_nuevo=instance.total
-        )
+        if accion == 'UPDATE':
+            HistorialFactura.objects.create(
+                audit_log=audit_log,
+                factura_id=instance.id,
+                estado_nuevo=instance.estado,
+                monto_nuevo=instance.total
+            )
     except Exception as e:
         print(f"Error registrando factura: {e}")
 
@@ -362,7 +283,7 @@ def registrar_cambio_factura(sender, instance, created, **kwargs):
 @receiver(post_delete, sender='ventas.Factura', dispatch_uid='registrar_eliminacion_factura')
 def registrar_eliminacion_factura(sender, instance, **kwargs):
     """Registra cuando se elimina una factura"""
-    usuario = get_current_user()
+    usuario = obtener_usuario_actual()
     if not usuario:
         return
     
@@ -379,7 +300,7 @@ def registrar_eliminacion_factura(sender, instance, **kwargs):
         HistorialFactura.objects.create(
             audit_log=audit_log,
             factura_id=instance.id,
-            estado_nuevo='eliminado'
+            estado_nuevo='eliminada'
         )
     except Exception as e:
         print(f"Error registrando eliminación de factura: {e}")

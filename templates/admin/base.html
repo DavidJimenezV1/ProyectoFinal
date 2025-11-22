@@ -1,0 +1,536 @@
+{% load static %}{% load i18n %}<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE|default:'es' }}">
+<head>
+    <title>{% block title %}Panel Admin{% endblock %}</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{% static 'admin/css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'admin/css/responsive.css' %}">
+    <!-- ==================== CSS UNIFICADO PERSONALIZADO ==================== -->
+    <link rel="stylesheet" href="{% static 'css/admin_unified.css' %}">
+    
+    <style>
+        /* ==================== OCULTAR SIDEBAR COMPLETAMENTE ==================== */
+        #sidebar,
+        [id*="sidebar"],
+        .sidebar,
+        [class*="sidebar"],
+        nav.sidebar {
+            display: none !important;
+            visibility: hidden !important;
+            width: 0 !important;
+            height: 0 !important;
+            overflow: hidden !important;
+            position: absolute !important;
+            left: -9999px !important;
+            top: -9999px !important;
+        }
+
+        /* ==================== CONTENEDOR PRINCIPAL ==================== */
+        #container {
+            display: block !important;
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            margin-left: 0 !important;
+            grid-template-columns: 1fr !important;
+        }
+
+        #main-content {
+            margin-left: 0 !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            padding: 0 !important;
+        }
+
+        /* ==================== NAVBAR PERSONALIZADA ==================== */
+        #header {
+            background: linear-gradient(90deg, #1e3c72 0%, #2a5298 50%, #667eea 100%) !important;
+            padding: 15px 40px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+            border-bottom: 4px solid #fbbf24 !important;
+            width: 100% !important;
+            margin: 0 !important;
+        }
+
+        #header h1 {
+            color: #fbbf24 !important;
+            font-size: 18px !important;
+            font-weight: 900 !important;
+            margin: 0 !important;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+            flex: 1 !important;
+        }
+
+        #user-tools {
+            background: transparent !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            display: flex !important;
+            gap: 15px !important;
+            align-items: center !important;
+            border: none !important;
+            flex-wrap: wrap !important;
+        }
+
+        #user-tools strong {
+            color: #ffffff !important;
+            font-size: 13px !important;
+            font-weight: 900 !important;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
+        }
+
+        #user-tools a {
+            color: #ffffff !important;
+            font-weight: 900 !important;
+            font-size: 13px !important;
+            padding: 10px 18px !important;
+            border-radius: 6px !important;
+            transition: all 0.3s ease !important;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2) !important;
+            text-decoration: none !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 6px !important;
+        }
+
+        #user-tools a:hover {
+            transform: translateY(-2px) !important;
+        }
+
+        #user-tools a[href*="password_change"] {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+        }
+
+        #user-tools a[href*="password_change"]:hover {
+            box-shadow: 0 6px 16px rgba(245, 158, 11, 0.4) !important;
+        }
+
+        #user-tools a[href*="logout"] {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+        }
+
+        #user-tools a[href*="logout"]:hover {
+            box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4) !important;
+        }
+
+        /* ==================== BOTÓN VOLVER AL SITIO WEB ====================  */
+        .btn-volver-sitio {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+            color: #ffffff !important;
+            padding: 10px 18px !important;
+            border-radius: 6px !important;
+            text-decoration: none !important;
+            font-weight: 900 !important;
+            font-size: 13px !important;
+            transition: all 0.3s ease !important;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2) !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 6px !important;
+        }
+
+        .btn-volver-sitio:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4) !important;
+        }
+
+        /* ==================== BOTÓN VOLVER AL PANEL ==================== */
+        .admin-header-top {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid rgba(251, 187, 36, 0.3);
+        }
+
+        .back-to-dashboard-btn {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%) !important;
+            color: #1a1a2e !important;
+            padding: 12px 24px !important;
+            border-radius: 8px !important;
+            text-decoration: none !important;
+            font-weight: 900 !important;
+            font-size: 14px !important;
+            border: 2px solid transparent !important;
+            transition: all 0.3s ease !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+            box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3) !important;
+        }
+
+        .back-to-dashboard-btn:hover {
+            background: linear-gradient(135deg, #fcd34d 0%, #fbbf24 100%) !important;
+            box-shadow: 0 8px 20px rgba(251, 191, 36, 0.5) !important;
+            transform: translateY(-2px) !important;
+        }
+
+        /* ==================== CONTENIDO ADMIN GENERAL ==================== */
+        #content {
+            padding: 30px 40px !important;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%) !important;
+            min-height: calc(100vh - 150px) !important;
+        }
+
+        /* ==================== TABLAS ==================== */
+        table {
+            width: 100% !important;
+            border-collapse: collapse !important;
+            background: rgba(255, 255, 255, 0.95) !important;
+            border-radius: 8px !important;
+            overflow: hidden !important;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2) !important;
+        }
+
+        thead {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%) !important;
+            color: #ffffff !important;
+        }
+
+        thead th {
+            padding: 18px 16px !important;
+            font-weight: 900 !important;
+            text-align: left !important;
+            border: none !important;
+            font-size: 14px !important;
+            letter-spacing: 0.5px !important;
+            color: white !important;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1) !important;
+            transition: all 0.3s ease !important;
+        }
+
+        tbody tr:hover {
+            background: rgba(102, 126, 234, 0.08) !important;
+        }
+
+        tbody td {
+            padding: 16px !important;
+            color: #333 !important;
+            font-size: 13px !important;
+        }
+
+        /* ==================== FORMULARIOS ==================== */
+        form {
+            background: rgba(255, 255, 255, 0.95) !important;
+            padding: 30px !important;
+            border-radius: 12px !important;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2) !important;
+            margin-bottom: 30px !important;
+        }
+
+        .form-row,
+        .form-line {
+            margin-bottom: 20px !important;
+        }
+
+        label {
+            color: #333 !important;
+            font-weight: 700 !important;
+            display: block !important;
+            margin-bottom: 8px !important;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="number"],
+        input[type="date"],
+        input[type="time"],
+        input[type="datetime-local"],
+        textarea,
+        select {
+            width: 100% !important;
+            padding: 12px 16px !important;
+            border: 2px solid #e5e7eb !important;
+            border-radius: 8px !important;
+            font-size: 14px !important;
+            transition: all 0.3s ease !important;
+        }
+
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        input[type="number"]:focus,
+        input[type="date"]:focus,
+        textarea:focus,
+        select:focus {
+            border-color: #667eea !important;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
+            outline: none !important;
+        }
+
+        /* ==================== BOTONES ==================== */
+        .submit-row {
+            display: flex !important;
+            gap: 12px !important;
+            margin-top: 30px !important;
+            padding-top: 20px !important;
+            border-top: 2px solid #e5e7eb !important;
+        }
+
+        input[type="submit"],
+        button {
+            padding: 12px 28px !important;
+            border: none !important;
+            border-radius: 8px !important;
+            font-weight: 900 !important;
+            cursor: pointer !important;
+            transition: all 0.3s ease !important;
+            font-size: 14px !important;
+        }
+
+        input[type="submit"] {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+            color: #ffffff !important;
+        }
+
+        input[type="submit"]:hover {
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4) !important;
+            transform: translateY(-2px) !important;
+        }
+
+        /* ==================== MENSAJES ==================== */
+        .messagelist {
+            list-style: none !important;
+            margin: 0 0 30px 0 !important;
+            padding: 0 !important;
+        }
+
+        .messagelist li {
+            padding: 16px 20px !important;
+            border-radius: 8px !important;
+            margin-bottom: 12px !important;
+            font-weight: 600 !important;
+        }
+
+        .messagelist .success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+            color: #ffffff !important;
+        }
+
+        .messagelist .error {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+            color: #ffffff !important;
+        }
+
+        .messagelist .warning {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+            color: #ffffff !important;
+        }
+
+        /* ==================== BREADCRUMBS ==================== */
+        .breadcrumbs {
+            color: #fbbf24 !important;
+            margin-bottom: 30px !important;
+            font-weight: 600 !important;
+        }
+
+        .breadcrumbs a {
+            color: #fbbf24 !important;
+            text-decoration: none !important;
+        }
+
+        .breadcrumbs a:hover {
+            text-decoration: underline !important;
+        }
+
+        /* ==================== SEARCH Y FILTROS ==================== */
+        .search,
+        #changelist-filter {
+            margin-bottom: 30px !important;
+        }
+
+        .search input,
+        #changelist-filter input {
+            padding: 12px 16px !important;
+            border: 2px solid #e5e7eb !important;
+            border-radius: 8px !important;
+        }
+
+        #changelist-filter {
+            background: rgba(255, 255, 255, 0.95) !important;
+            padding: 20px !important;
+            border-radius: 12px !important;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2) !important;
+        }
+
+        #changelist-filter h2 {
+            color: #333 !important;
+            font-weight: 900 !important;
+        }
+
+        #changelist-filter ul {
+            list-style: none !important;
+            padding: 0 !important;
+        }
+
+        #changelist-filter li {
+            margin: 10px 0 !important;
+        }
+
+        #changelist-filter a {
+            color: #667eea !important;
+            text-decoration: none !important;
+            font-weight: 600 !important;
+        }
+
+        #changelist-filter a:hover {
+            color: #764ba2 !important;
+            text-decoration: underline !important;
+        }
+
+        /* ==================== RESPONSIVE ==================== */
+        @media (max-width: 768px) {
+            #header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+
+            #user-tools {
+                width: 100%;
+                justify-content: space-around;
+                flex-wrap: wrap;
+            }
+
+            #content {
+                padding: 20px !important;
+            }
+
+            table {
+                font-size: 12px !important;
+            }
+
+            thead th {
+                padding: 12px 8px !important;
+            }
+
+            tbody td {
+                padding: 12px 8px !important;
+            }
+
+            .admin-header-top {
+                flex-direction: column;
+                gap: 15px;
+                padding: 15px 20px;
+            }
+
+            .back-to-dashboard-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+    {% block extrastyle %}{% endblock %}
+</head>
+<body class="{% if is_popup %}popup {% endif %}{% block bodyclass %}{% endblock %}">
+
+    <!-- NAVBAR PERSONALIZADA -->
+    <div id="header">
+        <h1>🏆 Tejos Olímpica - Administración</h1>
+        <div id="user-tools">
+            <strong>{{ user.get_full_name|default:user.username }}</strong>
+            <a href="/" class="btn-volver-sitio" title="Volver al sitio web">🌐 Volver al Sitio</a>
+            <a href="/admin/password_change/">🔐 Cambiar Contraseña</a>
+            <a href="{% url 'usuarios:logout' %}">🚪 Cerrar Sesión</a>
+        </div>
+    </div>
+
+    <!-- BOTÓN VOLVER AL PANEL (SOLO SI NO ES LA PÁGINA PRINCIPAL) -->
+    {% if request.resolver_match.url_name != 'index' %}
+        <div class="admin-header-top">
+            <h2 style="color: #fbbf24; margin: 0; font-size: 18px;">{% block content_title %}{% endblock %}</h2>
+            <a href="/admin/" class="back-to-dashboard-btn">
+                🏠 Volver al Panel Admin
+            </a>
+        </div>
+    {% endif %}
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <div id="container">
+        <div id="main-content">
+            <div id="content">
+                {% block messages %}
+                    {% if messages %}
+                        <ul class="messagelist">
+                            {% for message in messages %}
+                                <li class="{{ message.tags }}">{{ message }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                {% endblock %}
+
+                {% block content %}{% endblock %}
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== SCRIPT NUCLEAR - LETRAS BLANCAS EN MORADO ==================== -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            function getRGBValues(rgbString) {
+                const match = rgbString.match(/\d+/g);
+                return match ? match.map(Number) : null;
+            }
+
+            const allCells = document.querySelectorAll('td, th');
+            
+            allCells.forEach(cell => {
+                const bgColor = window.getComputedStyle(cell).backgroundColor;
+                const styleAttr = cell.getAttribute('style') || '';
+                
+                if (bgColor && bgColor !== 'rgba(0, 0, 0, 0)' && bgColor !== 'transparent') {
+                    const rgb = getRGBValues(bgColor);
+                    
+                    if (rgb && !(rgb[0] > 240 && rgb[1] > 240 && rgb[2] > 240)) {
+                        cell.style.color = '#ffffff !important';
+                        cell.style.fontWeight = '900 !important';
+                    }
+                }
+                
+                if (styleAttr.includes('background')) {
+                    cell.style.color = '#ffffff !important';
+                    cell.style.fontWeight = '900 !important';
+                }
+            });
+            
+            const observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    if (mutation.type === 'attributes' && (mutation.attributeName === 'style' || mutation.attributeName === 'class')) {
+                        const cell = mutation.target;
+                        const bgColor = window.getComputedStyle(cell).backgroundColor;
+                        const styleAttr = cell.getAttribute('style') || '';
+                        
+                        if (bgColor && bgColor !== 'rgba(0, 0, 0, 0)' && bgColor !== 'transparent') {
+                            const rgb = getRGBValues(bgColor);
+                            if (rgb && !(rgb[0] > 240 && rgb[1] > 240 && rgb[2] > 240)) {
+                                cell.style.color = '#ffffff !important';
+                                cell.style.fontWeight = '900 !important';
+                            }
+                        }
+                        
+                        if (styleAttr.includes('background')) {
+                            cell.style.color = '#ffffff !important';
+                            cell.style.fontWeight = '900 !important';
+                        }
+                    }
+                });
+            });
+            
+            const tableCells = document.querySelectorAll('table tbody td, table thead th');
+            tableCells.forEach(cell => {
+                observer.observe(cell, { attributes: true, attributeFilter: ['style', 'class'] });
+            });
+        });
+    </script>
+
+</body>
+</html>

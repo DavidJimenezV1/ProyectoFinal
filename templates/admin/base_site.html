@@ -1,77 +1,313 @@
-{% load static %}
-
-<!DOCTYPE html>
-<html lang="es">
+{% load static %}{% load i18n %}<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE|default:'es' }}">
 <head>
+    <title>{% block title %}Panel Admin{% endblock %}</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{% block title %}{% endblock %}</title>
+    
+    <!-- ==================== CSS DJANGO POR DEFECTO ==================== -->
+    {% block extrastyle %}<link rel="stylesheet" href="{% static 'admin/css/base.css' %}">{% endblock %}
+    
+    <!-- ==================== CSS UNIFICADO PERSONALIZADO ==================== -->
+    <link rel="stylesheet" href="{% static 'css/admin_unified.css' %}">
+    
+    <style>
+        /* ==================== RESET TOTAL ==================== */
+        * {
+            margin: 0 !important;
+            padding: 0 !important;
+            box-sizing: border-box !important;
+        }
 
-    <!-- Django Admin CSS -->
-    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/base.css' %}">
-    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/nav_sidebar.css' %}">
-    
-    <!-- Custom CSS -->
-    <link rel="stylesheet" type="text/css" href="{% static 'css/admin_dark.css' %}">
-    
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
-    {% block extrastyle %}{% endblock %}
-    
-    <script src="{% static 'admin/js/core.js' %}"></script>
-    {% block extrahead %}{% endblock %}
+        html, body {
+            width: 100% !important;
+            height: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow-x: hidden !important;
+        }
+
+        /* ==================== OCULTAR SIDEBAR ==================== */
+        #sidebar,
+        [id*="sidebar"],
+        .sidebar,
+        [class*="sidebar"],
+        nav.sidebar {
+            display: none !important;
+            visibility: hidden !important;
+            width: 0 !important;
+            height: 0 !important;
+            overflow: hidden !important;
+            position: absolute !important;
+            left: -9999px !important;
+            top: -9999px !important;
+        }
+
+        /* ==================== NAVBAR PERSONALIZADA ==================== */
+        #header {
+            background: linear-gradient(90deg, #1e3c72 0%, #2a5298 50%, #667eea 100%) !important;
+            padding: 15px 40px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+            border-bottom: 4px solid #fbbf24 !important;
+            width: 100% !important;
+            margin: 0 !important;
+            position: relative !important;
+            z-index: 100 !important;
+        }
+
+        #header h1 {
+            color: #fbbf24 !important;
+            font-size: 18px !important;
+            font-weight: 900 !important;
+            margin: 0 !important;
+            text-shadow: 0 2px 8px rgba(251, 191, 36, 0.4) !important;
+            flex: 1 !important;
+            letter-spacing: 1px !important;
+        }
+
+        #header h1 a,
+        #header h1 a:visited,
+        #header h1 a:hover {
+            color: #fbbf24 !important;
+            text-decoration: none !important;
+        }
+
+        /* ==================== USER TOOLS ==================== */
+        #user-tools {
+            background: transparent !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            display: flex !important;
+            gap: 15px !important;
+            align-items: center !important;
+            border: none !important;
+        }
+
+        #user-tools strong {
+            color: #ffffff !important;
+            font-size: 13px !important;
+            font-weight: 900 !important;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
+        }
+
+        #user-tools a {
+            color: #ffffff !important;
+            font-weight: 900 !important;
+            font-size: 13px !important;
+            padding: 10px 18px !important;
+            border-radius: 8px !important;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25) !important;
+            text-decoration: none !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 6px !important;
+        }
+
+        #user-tools a:hover {
+            transform: translateY(-3px) !important;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3) !important;
+        }
+
+        /* Cambiar contraseña */
+        #user-tools a[href*="password_change"] {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+        }
+
+        #user-tools a[href*="password_change"]:hover {
+            box-shadow: 0 8px 20px rgba(245, 158, 11, 0.5) !important;
+        }
+
+        /* Cerrar sesión */
+        #user-tools a[href*="logout"] {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+        }
+
+        #user-tools a[href*="logout"]:hover {
+            box-shadow: 0 8px 20px rgba(239, 68, 68, 0.5) !important;
+        }
+
+        /* ==================== BOTÓN VOLVER AL PANEL ==================== */
+        .admin-header-top {
+            background: linear-gradient(135deg, rgba(26, 26, 46, 0.95) 0%, rgba(22, 33, 62, 0.95) 100%);
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid rgba(251, 187, 36, 0.4);
+            gap: 20px;
+            position: relative;
+            z-index: 99;
+        }
+
+        .admin-header-top h2 {
+            color: #fbbf24;
+            margin: 0;
+            font-size: 18px;
+            font-weight: 900;
+            flex: 1;
+        }
+
+        .back-to-dashboard-btn {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%) !important;
+            color: #1a1a2e !important;
+            padding: 12px 28px !important;
+            border-radius: 10px !important;
+            text-decoration: none !important;
+            font-weight: 900 !important;
+            font-size: 14px !important;
+            border: 2px solid transparent !important;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+            box-shadow: 0 6px 15px rgba(251, 191, 36, 0.4) !important;
+            cursor: pointer !important;
+        }
+
+        .back-to-dashboard-btn:hover {
+            background: linear-gradient(135deg, #fcd34d 0%, #fbbf24 100%) !important;
+            box-shadow: 0 10px 25px rgba(251, 191, 36, 0.6) !important;
+            transform: translateY(-3px) !important;
+        }
+
+        /* ==================== CONTENEDOR PRINCIPAL ==================== */
+        #container {
+            display: block !important;
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            margin-left: 0 !important;
+            grid-template-columns: 1fr !important;
+        }
+
+        #main-content {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%) !important;
+            padding: 40px !important;
+            width: 100% !important;
+            margin: 0 !important;
+            margin-left: 0 !important;
+            min-height: calc(100vh - 150px) !important;
+        }
+
+        /* ==================== FOOTER ==================== */
+        footer {
+            background: #0f1419;
+            color: #ffffff;
+            text-align: center;
+            padding: 20px;
+            border-top: 2px solid #fbbf24;
+            font-size: 12px;
+            margin-top: 40px;
+        }
+
+        /* ==================== RESPONSIVE ==================== */
+        @media (max-width: 768px) {
+            #header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+
+            #user-tools {
+                width: 100%;
+                justify-content: space-around;
+            }
+
+            #main-content {
+                padding: 20px !important;
+            }
+
+            #header h1 {
+                font-size: 14px !important;
+            }
+
+            #user-tools a {
+                padding: 8px 12px !important;
+                font-size: 11px !important;
+            }
+
+            .admin-header-top {
+                padding: 15px 20px !important;
+                flex-direction: column !important;
+                gap: 10px !important;
+            }
+
+            .back-to-dashboard-btn {
+                width: 100% !important;
+                justify-content: center !important;
+                padding: 10px 20px !important;
+                font-size: 13px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            #header {
+                padding: 10px 15px !important;
+            }
+
+            #header h1 {
+                font-size: 12px !important;
+            }
+
+            #main-content {
+                padding: 15px !important;
+                min-height: calc(100vh - 120px) !important;
+            }
+
+            .admin-header-top {
+                padding: 12px 15px !important;
+            }
+        }
+    </style>
 </head>
-<body>
+<body class="{% if is_popup %}popup {% endif %}{% block bodyclass %}{% endblock %}">
 
-<!-- Header -->
-<div id="header">
-    <div style="display: flex; justify-content: space-between; align-items: center; padding: 0 20px;">
-        <div>
-            <h1>
-                <a href="{% url 'admin:index' %}">
-                    🏆 Tejos Olímpica - Administración
-                </a>
-            </h1>
-        </div>
-        <div class="user-tools">
-            {% if user.is_active and user.is_staff %}
-                {{ user.get_full_name|default:user.username }}
-                | <a href="{% url 'admin:logout' %}">🚪 Cerrar sesión</a>
-            {% else %}
-                <a href="{% url 'admin:login' %}">Iniciar sesión</a>
-            {% endif %}
+    <!-- NAVBAR PERSONALIZADA -->
+    <div id="header">
+        <h1>🏆 Tejos Olímpica - Administración</h1>
+        <div id="user-tools">
+            <strong>{{ user.get_full_name|default:user.username }}</strong>
+            <a href="/admin/password_change/">🔐 Cambiar Contraseña</a>
+            <a href="/admin/logout/">🚪 Cerrar Sesión</a>
         </div>
     </div>
-</div>
 
-<!-- Content -->
-<div id="container">
-    {% block messages %}
-        {% if messages %}
-        <ul class="messagelist">
-            {% for message in messages %}
-            <li class="{% if message.tags %}{{ message.tags }}{% endif %}">
-                {{ message|safe }}
-            </li>
-            {% endfor %}
-        </ul>
-        {% endif %}
-    {% endblock %}
+    <!-- BOTÓN VOLVER AL PANEL (SOLO SI NO ES LA PÁGINA PRINCIPAL) -->
+    {% if request.resolver_match.url_name != 'index' %}
+        <div class="admin-header-top">
+            <h2>{% block content_title %}{% endblock %}</h2>
+            <a href="/admin/" class="back-to-dashboard-btn">
+                🏠 Volver al Panel Admin
+            </a>
+        </div>
+    {% endif %}
 
-    <div id="content-main">
-        {% block content %}{% endblock %}
+    <!-- CONTENIDO PRINCIPAL -->
+    <div id="container">
+        <div id="main-content">
+            {% block messages %}
+                {% if messages %}
+                    <ul class="messagelist">
+                        {% for message in messages %}
+                            <li class="{{ message.tags }}">{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endblock %}
+
+            {% block content %}{% endblock %}
+        </div>
     </div>
-</div>
 
-<!-- Footer -->
-<div id="footer">
-    <p style="text-align: center; padding: 20px; color: #7f8c8d;">
-        &copy; 2025 Tejos Olímpica | Administración de Sistema
-    </p>
-</div>
-
-{% block extrajs %}{% endblock %}
+    <!-- FOOTER -->
+    <footer>
+        <p>&copy; 2025 Tejos Olímpica | Administración Inteligente</p>
+    </footer>
 
 </body>
 </html>

@@ -1,0 +1,774 @@
+/* ==========================================
+   ADMIN UNIFICADO - COLORIDO, LÚDICO E INTUITIVO
+   SOLUCIÓN FINAL - TODAS LAS LETRAS MORADAS EN BLANCO
+   =========================================== */
+
+:root {
+    --primary: #1e3c72;
+    --primary-dark: #0a1e3a;
+    --accent-orange: #FF6B35;
+    --accent-teal: #1ABC9C;
+    --accent-red: #E74C3C;
+    --accent-purple: #8E44AD;
+    --accent-yellow: #F1C40F;
+    --accent-pink: #E91E63;
+    --accent-green: #27AE60;
+    --accent-blue: #3b82f6;
+    --text-dark: #2c3e50;
+    --bg-light: #f8f9fa;
+}
+
+/* ==================== RESET GLOBAL ==================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+}
+
+/* ==================== CONTENEDOR PRINCIPAL ==================== */
+#content {
+    padding: 40px !important;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%) !important;
+    min-height: calc(100vh - 200px) !important;
+    width: 100% !important;
+}
+
+/* ==================== TABLAS - MÁXIMA PRIORIDAD ==================== */
+table,
+.table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    background: rgba(255, 255, 255, 0.98) !important;
+    border-radius: 12px !important;
+    overflow: hidden !important;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
+    margin: 20px 0 !important;
+    font-size: 15px !important;
+}
+
+thead,
+.thead,
+thead th {
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%) !important;
+    color: white !important;
+}
+
+thead th,
+th {
+    padding: 18px 16px !important;
+    text-align: left !important;
+    font-weight: 900 !important;
+    color: #ffffff !important;
+    border: none !important;
+    font-size: 14px !important;
+    letter-spacing: 0.8px !important;
+    text-transform: uppercase !important;
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%) !important;
+}
+
+tbody,
+tbody tr {
+    background: white !important;
+}
+
+tbody tr,
+tr {
+    border-bottom: 1px solid #e5e7eb !important;
+    transition: all 0.3s ease !important;
+    background-color: white !important;
+}
+
+tbody tr:nth-child(even),
+tr:nth-child(even) {
+    background-color: #f9fafb !important;
+}
+
+tbody tr:nth-child(odd),
+tr:nth-child(odd) {
+    background-color: white !important;
+}
+
+tbody tr:hover,
+tr:hover {
+    background-color: rgba(102, 126, 234, 0.1) !important;
+}
+
+tbody td,
+td {
+    padding: 16px 16px !important;
+    color: #333 !important;
+    font-size: 14px !important;
+    border: none !important;
+    background: transparent !important;
+    font-weight: 600 !important;
+}
+
+/* Remover estilos por defecto de Django */
+.row1,
+.row2 {
+    background: transparent !important;
+    color: #333 !important;
+}
+
+/* ==================== FIX NUCLEAR PARA CELDAS CON FONDO MORADO ==================== */
+
+/* TODAS LAS CELDAS CON CUALQUIER FONDO - LETRA BLANCA */
+*[style*="background"] {
+    color: white !important;
+}
+
+td[style*="background"],
+td[style*="background-color"],
+td[style*="background: rgb"],
+td[style*="background: linear"],
+th[style*="background"],
+th[style*="background-color"],
+tr[style*="background"] td,
+tr[style*="background-color"] td,
+tbody tr[style] td,
+tbody tr td[style*="background"],
+th,
+thead th {
+    color: #ffffff !important;
+    font-weight: 900 !important;
+}
+
+/* HEADERS - SIEMPRE BLANCO */
+thead th {
+    color: white !important;
+    font-weight: 900 !important;
+}
+
+/* TODAS LAS CELDAS DENTRO DE FILAS CON ESTILO */
+tr[style*="rgb"] td,
+tr[style*="#667eea"] td,
+tr[style*="#764ba2"] td,
+tr[style*="purple"] td,
+tr[style*="background"] td {
+    color: white !important;
+    font-weight: 900 !important;
+}
+
+/* OVERRIDE MÁXIMO - CUALQUIER CELDA MORADA */
+td {
+    color: inherit !important;
+}
+
+tr[style] td,
+tr[style*="style"] td {
+    color: white !important;
+}
+
+/* ==================== FIX COLUMNA IZQUIERDA - LETRAS BLANCAS ==================== */
+
+/* Primera columna - TODAS las letras en BLANCO */
+tbody tr td:first-child,
+tbody tr:first-child td,
+td[style*="width: 50px"],
+td[style*="width: 100px"],
+.action-checkbox-column,
+.actions,
+td:nth-child(1) {
+    color: white !important;
+    font-weight: 900 !important;
+}
+
+/* Filas alternadas - COLUMNA IZQUIERDA */
+tbody tr td:first-child {
+    color: white !important;
+    font-weight: 900 !important;
+    background: transparent !important;
+}
+
+/* OVERRIDE - Todas las celdas con texto en la izquierda */
+tr[style] td:first-child,
+tr[style*="background"] td:first-child {
+    color: white !important;
+    font-weight: 900 !important;
+}
+
+/* FORZAR - Cualquier celda que tenga fondo morado */
+td[style*="background-color: rgb"],
+td[style*="background: rgb"],
+tbody tr:first-of-type td {
+    color: white !important;
+}
+
+/* ESPECIAL - Celdas en filas con símbolo morado */
+tbody tr[style*="rgb(102, 126, 234)"] td:first-child,
+tbody tr[style*="rgb(118, 75, 162)"] td:first-child,
+tbody tr[style*="#667eea"] td:first-child,
+tbody tr[style*="#764ba2"] td:first-child {
+    color: white !important;
+    font-weight: 900 !important;
+}
+
+/* TODAS LAS CELDAS EN FILAS CON ESTILO */
+tbody tr[style] td {
+    color: white !important;
+}
+
+/* ==================== BREADCRUMBS ==================== */
+.breadcrumbs {
+    background: rgba(255, 255, 255, 0.95) !important;
+    border-left: 5px solid var(--accent-orange) !important;
+    padding: 18px 24px !important;
+    border-radius: 12px !important;
+    margin-bottom: 30px !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+}
+
+.breadcrumbs a {
+    color: var(--primary) !important;
+    text-decoration: none !important;
+    font-weight: 700 !important;
+}
+
+.breadcrumbs a:hover {
+    color: var(--accent-orange) !important;
+}
+
+/* ==================== MÓDULOS ==================== */
+.module,
+fieldset {
+    background: rgba(255, 255, 255, 0.98) !important;
+    border-radius: 16px !important;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
+    margin-bottom: 30px !important;
+    overflow: hidden !important;
+    border-top: 5px solid !important;
+}
+
+.module:nth-child(1) {
+    border-top-color: #FF6B35 !important;
+}
+
+.module:nth-child(2) {
+    border-top-color: #1ABC9C !important;
+}
+
+.module:nth-child(3) {
+    border-top-color: #E74C3C !important;
+}
+
+.module:nth-child(4) {
+    border-top-color: #8E44AD !important;
+}
+
+.module:nth-child(5) {
+    border-top-color: #27AE60 !important;
+}
+
+.module:nth-child(6) {
+    border-top-color: #E91E63 !important;
+}
+
+.module h2,
+fieldset legend {
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%) !important;
+    color: white !important;
+    margin: 0 !important;
+    padding: 18px 24px !important;
+    font-size: 16px !important;
+    font-weight: 900 !important;
+    letter-spacing: 0.5px !important;
+}
+
+.module:nth-child(1) h2 {
+    background: linear-gradient(90deg, #FF6B35 0%, #FF8F43 100%) !important;
+}
+
+.module:nth-child(2) h2 {
+    background: linear-gradient(90deg, #1ABC9C 0%, #16a085 100%) !important;
+}
+
+.module:nth-child(3) h2 {
+    background: linear-gradient(90deg, #E74C3C 0%, #c0392b 100%) !important;
+}
+
+.module:nth-child(4) h2 {
+    background: linear-gradient(90deg, #8E44AD 0%, #6c3483 100%) !important;
+}
+
+.module:nth-child(5) h2 {
+    background: linear-gradient(90deg, #27AE60 0%, #1e8449 100%) !important;
+}
+
+.module:nth-child(6) h2 {
+    background: linear-gradient(90deg, #E91E63 0%, #c2185b 100%) !important;
+}
+
+/* ==================== BOTONES ==================== */
+.button,
+input[type="submit"],
+input[type="button"],
+input[type="reset"],
+button,
+a.button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: #ffffff !important;
+    border: none !important;
+    padding: 14px 28px !important;
+    border-radius: 10px !important;
+    cursor: pointer !important;
+    font-weight: 900 !important;
+    font-size: 14px !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3) !important;
+    text-decoration: none !important;
+    letter-spacing: 0.5px !important;
+    display: inline-block !important;
+}
+
+.button:hover,
+input[type="submit"]:hover,
+input[type="button"]:hover,
+input[type="reset"]:hover,
+button:hover,
+a.button:hover {
+    transform: translateY(-3px) !important;
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5) !important;
+}
+
+.button.default {
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%) !important;
+}
+
+/* ==================== ACCIONES ==================== */
+.addlink,
+.deletelink,
+.changelink,
+a.addlink,
+a.deletelink,
+a.changelink {
+    display: inline-block !important;
+    padding: 12px 18px !important;
+    border-radius: 8px !important;
+    text-decoration: none !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    transition: all 0.3s ease !important;
+    margin-right: 8px !important;
+    cursor: pointer !important;
+}
+
+.addlink,
+a.addlink {
+    background: linear-gradient(135deg, #27AE60 0%, #1e8449 100%) !important;
+    color: white !important;
+}
+
+.addlink:hover,
+a.addlink:hover {
+    transform: translateY(-2px) scale(1.08) !important;
+    box-shadow: 0 6px 15px rgba(39, 174, 96, 0.4) !important;
+}
+
+.changelink,
+a.changelink {
+    background: linear-gradient(135deg, #FF6B35 0%, #FF8F43 100%) !important;
+    color: white !important;
+}
+
+.changelink:hover,
+a.changelink:hover {
+    transform: translateY(-2px) scale(1.08) !important;
+    box-shadow: 0 6px 15px rgba(255, 107, 53, 0.4) !important;
+}
+
+.deletelink,
+a.deletelink {
+    background: linear-gradient(135deg, #E74C3C 0%, #c0392b 100%) !important;
+    color: white !important;
+}
+
+.deletelink:hover,
+a.deletelink:hover {
+    transform: translateY(-2px) scale(1.08) !important;
+    box-shadow: 0 6px 15px rgba(231, 76, 60, 0.4) !important;
+}
+
+/* ==================== FORMULARIOS ==================== */
+form {
+    background: rgba(255, 255, 255, 0.98) !important;
+    padding: 35px !important;
+    border-radius: 16px !important;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1) !important;
+    margin-bottom: 30px !important;
+}
+
+fieldset {
+    border: 2px solid #e5e7eb !important;
+    border-radius: 12px !important;
+    padding: 20px 24px !important;
+    margin-bottom: 25px !important;
+    background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%) !important;
+}
+
+legend {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: white !important;
+    padding: 10px 20px !important;
+    border-radius: 10px !important;
+    font-weight: 900 !important;
+    font-size: 14px !important;
+    margin-left: -24px !important;
+}
+
+label {
+    display: block !important;
+    margin-bottom: 10px !important;
+    color: #2c3e50 !important;
+    font-weight: 700 !important;
+    font-size: 14px !important;
+}
+
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="url"],
+input[type="number"],
+input[type="date"],
+input[type="time"],
+textarea,
+select {
+    width: 100% !important;
+    padding: 12px 16px !important;
+    border: 2px solid #e5e7eb !important;
+    border-radius: 10px !important;
+    font-family: inherit !important;
+    font-size: 14px !important;
+    transition: all 0.3s ease !important;
+    background: white !important;
+    color: #333 !important;
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus,
+input[type="email"]:focus,
+input[type="url"]:focus,
+input[type="number"]:focus,
+input[type="date"]:focus,
+input[type="time"]:focus,
+textarea:focus,
+select:focus {
+    border-color: #667eea !important;
+    outline: none !important;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15) !important;
+    transform: translateY(-2px) !important;
+}
+
+/* ==================== MENSAJES ==================== */
+.messagelist {
+    list-style: none !important;
+    padding: 0 !important;
+    margin: 0 0 30px 0 !important;
+}
+
+.messagelist li,
+.message {
+    padding: 18px 24px !important;
+    border-radius: 12px !important;
+    margin-bottom: 15px !important;
+    font-weight: 700 !important;
+    border-left: 5px solid !important;
+    font-size: 14px !important;
+}
+
+.messagelist .success,
+.message.success {
+    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%) !important;
+    color: #1e8449 !important;
+    border-left-color: #27AE60 !important;
+}
+
+.messagelist .error,
+.message.error {
+    background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%) !important;
+    color: #c0392b !important;
+    border-left-color: #E74C3C !important;
+}
+
+.messagelist .warning,
+.message.warning {
+    background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%) !important;
+    color: #856404 !important;
+    border-left-color: #F1C40F !important;
+}
+
+.messagelist .info,
+.message.info {
+    background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%) !important;
+    color: #0c5460 !important;
+    border-left-color: #1ABC9C !important;
+}
+
+/* ==================== FILTROS ==================== */
+#changelist-filter {
+    background: rgba(255, 255, 255, 0.98) !important;
+    padding: 25px !important;
+    border-radius: 16px !important;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1) !important;
+}
+
+#changelist-filter h2 {
+    color: var(--primary) !important;
+    font-weight: 900 !important;
+    border-bottom: 3px solid var(--accent-orange) !important;
+    padding-bottom: 12px !important;
+    margin-bottom: 20px !important;
+    font-size: 15px !important;
+}
+
+#changelist-filter ul {
+    list-style: none !important;
+    padding: 0 !important;
+}
+
+#changelist-filter li {
+    margin: 8px 0 !important;
+}
+
+#changelist-filter a {
+    color: var(--primary) !important;
+    text-decoration: none !important;
+    font-weight: 600 !important;
+    padding: 10px 12px !important;
+    display: block !important;
+    border-radius: 8px !important;
+    transition: all 0.3s ease !important;
+    border-left: 3px solid transparent !important;
+    font-size: 14px !important;
+}
+
+#changelist-filter a:hover {
+    color: var(--accent-orange) !important;
+    background: rgba(255, 107, 53, 0.08) !important;
+    border-left-color: var(--accent-orange) !important;
+    transform: translateX(4px) !important;
+}
+
+#changelist-filter a.selected {
+    background: linear-gradient(135deg, rgba(255, 107, 53, 0.15) 0%, rgba(255, 107, 53, 0.05) 100%) !important;
+    border-left-color: var(--accent-orange) !important;
+    color: var(--accent-orange) !important;
+    font-weight: 900 !important;
+}
+
+/* ==================== SEARCH ==================== */
+.search {
+    margin-bottom: 30px !important;
+}
+
+.search input {
+    padding: 14px 18px !important;
+    border: 2px solid #e5e7eb !important;
+    border-radius: 10px !important;
+    width: 100% !important;
+    font-size: 14px !important;
+    transition: all 0.3s ease !important;
+}
+
+.search input:focus {
+    border-color: #667eea !important;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15) !important;
+    outline: none !important;
+}
+
+/* ==================== SUBMIT ROW ==================== */
+.submit-row {
+    display: flex !important;
+    gap: 15px !important;
+    margin-top: 35px !important;
+    padding-top: 25px !important;
+    border-top: 2px solid #e5e7eb !important;
+}
+
+.submit-row input[type="submit"] {
+    flex: 1 !important;
+}
+
+/* ==================== OVERRIDE MÁXIMO PARA TABLAS ==================== */
+
+/* Auditorías - Filas alternadas */
+.change-list table tbody tr:nth-child(odd) td,
+.results table tbody tr:nth-child(odd) td {
+    background-color: white !important;
+    color: #333 !important;
+}
+
+.change-list table tbody tr:nth-child(even) td,
+.results table tbody tr:nth-child(even) td {
+    background-color: #f9fafb !important;
+    color: #333 !important;
+}
+
+/* Productos - Visibilidad */
+table tbody tr td {
+    color: #333 !important;
+    background: transparent !important;
+}
+
+/* Cotizaciones - Mejor contraste */
+#result_list tbody tr td {
+    color: #333 !important;
+    font-weight: 600 !important;
+}
+
+#result_list tbody tr:nth-child(odd) td {
+    background-color: white !important;
+}
+
+#result_list tbody tr:nth-child(even) td {
+    background-color: #f9fafb !important;
+}
+
+/* Headers siempre blancos */
+thead th {
+    color: white !important;
+    font-weight: 900 !important;
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 1024px) {
+    #content {
+        padding: 30px !important;
+    }
+
+    table,
+    thead th,
+    tbody td {
+        font-size: 13px !important;
+    }
+
+    thead th {
+        padding: 14px 12px !important;
+    }
+
+    tbody td {
+        padding: 12px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    #content {
+        padding: 20px !important;
+    }
+
+    table {
+        font-size: 12px !important;
+        display: block !important;
+        overflow-x: auto !important;
+    }
+
+    thead th {
+        padding: 12px 10px !important;
+        font-size: 12px !important;
+    }
+
+    tbody td {
+        padding: 10px !important;
+        font-size: 12px !important;
+    }
+
+    form {
+        padding: 20px !important;
+    }
+
+    .submit-row {
+        flex-direction: column !important;
+    }
+
+    .submit-row input[type="submit"] {
+        width: 100% !important;
+    }
+
+    .button,
+    input[type="submit"],
+    input[type="button"],
+    input[type="reset"] {
+        width: 100% !important;
+        padding: 12px 16px !important;
+        font-size: 13px !important;
+    }
+
+    .addlink,
+    .deletelink,
+    .changelink {
+        padding: 10px 14px !important;
+        font-size: 12px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    #content {
+        padding: 15px !important;
+    }
+
+    table {
+        font-size: 11px !important;
+    }
+
+    thead th {
+        padding: 10px 8px !important;
+        font-size: 11px !important;
+    }
+
+    tbody td {
+        padding: 8px !important;
+        font-size: 11px !important;
+    }
+
+    form {
+        padding: 15px !important;
+    }
+
+    input[type="text"],
+    input[type="password"],
+    input[type="email"],
+    input[type="url"],
+    input[type="number"],
+    textarea,
+    select {
+        font-size: 16px !important;
+    }
+}
+
+/* ==================== ANIMACIONES ==================== */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+.slide-in {
+    animation: slideIn 0.4s ease-out;
+}

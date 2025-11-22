@@ -25,7 +25,7 @@ class DetalleCotizacionInline(admin.TabularInline):
 
 @admin.register(Cotizacion)
 class CotizacionAdmin(admin.ModelAdmin):
-    list_display = ['id', 'cliente', 'fecha_solicitud', 'estado', 'total', 'num_items', 'acciones_list']
+    list_display = ['id_colored', 'cliente_colored', 'fecha_colored', 'estado_colored', 'total_colored', 'num_items_colored', 'acciones_list']
     list_filter = ['estado', 'fecha_solicitud']
     search_fields = ['cliente__username', 'cliente__first_name', 'cliente__last_name']
     date_hierarchy = 'fecha_solicitud'
@@ -45,6 +45,67 @@ class CotizacionAdmin(admin.ModelAdmin):
             'description': 'Acciones disponibles después de guardar la cotización'
         }),
     )
+
+    # ==================== MÉTODOS CON COLORES ====================
+    
+    def id_colored(self, obj):
+        """ID con fondo AZUL y letras BLANCAS"""
+        return mark_safe(
+            f'<span style="background-color: #4169E1; color: white; padding: 8px 12px; '
+            f'border-radius: 4px; font-weight: 900; display: inline-block;">{obj.id}</span>'
+        )
+    id_colored.short_description = 'ID'
+
+    def cliente_colored(self, obj):
+        """Cliente con fondo PÚRPURA y letras BLANCAS"""
+        cliente_nombre = obj.cliente.get_full_name() or obj.cliente.username
+        return mark_safe(
+            f'<span style="background-color: #8B5FBF; color: white; padding: 8px 12px; '
+            f'border-radius: 4px; font-weight: 900; display: inline-block;">{cliente_nombre}</span>'
+        )
+    cliente_colored.short_description = 'Cliente'
+
+    def fecha_colored(self, obj):
+        """Fecha con fondo VERDE y letras BLANCAS"""
+        fecha = obj.fecha_solicitud.strftime('%d/%m/%Y %H:%M')
+        return mark_safe(
+            f'<span style="background-color: #27AE60; color: white; padding: 8px 12px; '
+            f'border-radius: 4px; font-weight: 900; display: inline-block;">{fecha}</span>'
+        )
+    fecha_colored.short_description = 'Fecha de Solicitud'
+
+    def estado_colored(self, obj):
+        """Estado con color dinámico según estado"""
+        colores = {
+            'pendiente': '#FF9800',
+            'revisada': '#2196F3',
+            'aprobada': '#4CAF50',
+            'rechazada': '#F44336',
+            'convertida': '#9C27B0',
+        }
+        color = colores.get(obj.estado, '#757575')
+        estado_display = dict(obj.ESTADO_CHOICES).get(obj.estado, obj.estado)
+        return mark_safe(
+            f'<span style="background-color: {color}; color: white; padding: 8px 12px; '
+            f'border-radius: 4px; font-weight: 900; display: inline-block;">{estado_display}</span>'
+        )
+    estado_colored.short_description = 'Estado'
+
+    def total_colored(self, obj):
+        """Total con fondo ROJO y letras BLANCAS"""
+        return mark_safe(
+            f'<span style="background-color: #E74C3C; color: white; padding: 8px 12px; '
+            f'border-radius: 4px; font-weight: 900; display: inline-block;">${obj.total:,.2f}</span>'
+        )
+    total_colored.short_description = 'Total'
+
+    def num_items_colored(self, obj):
+        """Número de items con fondo NARANJA y letras BLANCAS"""
+        return mark_safe(
+            f'<span style="background-color: #FF6B35; color: white; padding: 8px 12px; '
+            f'border-radius: 4px; font-weight: 900; display: inline-block;">{obj.num_items}</span>'
+        )
+    num_items_colored.short_description = 'Items'
 
     def acciones_list(self, obj):
         """Botones de acción en la lista del admin"""

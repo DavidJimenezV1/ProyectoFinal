@@ -72,7 +72,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'core.context_processors.variables_globales',  # ← AGREGAR ESTA LÍNEA
+                'core.context_processors.variables_globales',
             ],
         },
     },
@@ -113,8 +113,11 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'assets')]
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+    os.path.join(BASE_DIR, 'assets'),
+]
 
 # Media files
 MEDIA_URL = '/media/'
@@ -125,6 +128,14 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # User model personalizado
 AUTH_USER_MODEL = 'usuarios.Usuario'
+
+# ==================== ADMIN PERSONALIZADO ====================
+from django.contrib import admin
+try:
+    from config.admin import CustomAdminSite
+    admin.site = CustomAdminSite(name='admin')
+except:
+    pass
 
 # Configuración de DRF
 REST_FRAMEWORK = {
@@ -153,6 +164,7 @@ MESSAGE_TAGS = {
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'home'
+
 # Configuración de Email para recuperación de contraseña
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # Para desarrollo (muestra en consola)
 # EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'  # Para producción
