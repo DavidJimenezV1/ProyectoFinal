@@ -1,12 +1,11 @@
-from django.db import models
-<<<<<<< HEAD
+from django. db import models
 from django.contrib.auth.models import User
 from django.conf import settings
 from django.utils import timezone
 import json
 
 
-class AuditLog(models.Model):
+class AuditLog(models. Model):
     """Registro general de auditoría"""
     ACCIONES = [
         ('CREATE', '✅ CREADO'),
@@ -21,7 +20,7 @@ class AuditLog(models.Model):
     objeto_id = models.IntegerField()
     objeto_nombre = models.CharField(max_length=255)
     
-    # NUEVOS CAMPOS PARA ANTES/DESPUÉS
+    # CAMPOS PARA ANTES/DESPUÉS
     datos_anterior = models.JSONField(null=True, blank=True, help_text="Datos antes de la modificación")
     datos_nuevo = models.JSONField(null=True, blank=True, help_text="Datos después de la modificación")
     cambios = models.JSONField(null=True, blank=True, help_text="Solo los campos que cambiaron")
@@ -36,7 +35,7 @@ class AuditLog(models.Model):
         ordering = ['-timestamp']
         indexes = [
             models.Index(fields=['-timestamp']),
-            models.Index(fields=['usuario', '-timestamp']),
+            models. Index(fields=['usuario', '-timestamp']),
             models.Index(fields=['modelo', '-timestamp']),
         ]
     
@@ -62,7 +61,7 @@ class AuditLog(models.Model):
             return "Sin detalles de cambios"
         
         lineas = []
-        for campo, (antes, despues) in self.cambios.items():
+        for campo, (antes, despues) in self.cambios. items():
             lineas.append(f"  • {campo}: {antes} → {despues}")
         
         return "\n".join(lineas)
@@ -71,7 +70,7 @@ class AuditLog(models.Model):
 class HistorialProducto(models.Model):
     """Historial específico de cambios en Productos"""
     audit_log = models.OneToOneField(AuditLog, on_delete=models.CASCADE, related_name='historial_producto')
-    producto_id = models.IntegerField()
+    producto_id = models. IntegerField()
     precio_anterior = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     precio_nuevo = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     stock_anterior = models.IntegerField(null=True, blank=True)
@@ -103,12 +102,12 @@ class HistorialPedido(models.Model):
         ordering = ['-audit_log__timestamp']
     
     def __str__(self):
-        return f"Pedido #{self.pedido_id} - {self.audit_log.accion}"
+        return f"Pedido #{self.pedido_id} - {self. audit_log.accion}"
 
 
 class HistorialCotizacion(models.Model):
     """Historial específico de cambios en Cotizaciones"""
-    audit_log = models.OneToOneField(AuditLog, on_delete=models.CASCADE, related_name='historial_cotizacion')
+    audit_log = models. OneToOneField(AuditLog, on_delete=models. CASCADE, related_name='historial_cotizacion')
     cotizacion_id = models.IntegerField()
     estado_anterior = models.CharField(max_length=50, null=True, blank=True)
     estado_nuevo = models.CharField(max_length=50, null=True, blank=True)
@@ -130,7 +129,7 @@ class HistorialFactura(models.Model):
     factura_id = models.IntegerField()
     estado_anterior = models.CharField(max_length=50, null=True, blank=True)
     estado_nuevo = models.CharField(max_length=50, null=True, blank=True)
-    monto_anterior = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    monto_anterior = models. DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     monto_nuevo = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     
     class Meta:
@@ -173,23 +172,3 @@ class HistorialCategoria(models.Model):
     
     def __str__(self):
         return f"Categoría #{self.categoria_id} - {self.audit_log.accion}"
-=======
-
-class AuditLog(models.Model):
-    action = models.CharField(max_length=50)
-    timestamp = models.DateTimeField(auto_now_add=True)
-    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
-    model_name = models.CharField(max_length=100)
-    object_id = models.PositiveIntegerField()
-    changes = models.JSONField()
-
-    def __str__(self):
-        return f"{self.action} on {self.model_name} (ID: {self.object_id}) at {self.timestamp}"
-
-class UserAction(models.Model):
-    audit_log = models.ForeignKey(AuditLog, related_name='user_actions', on_delete=models.CASCADE)
-    description = models.TextField()
-
-    def __str__(self):
-        return self.description
->>>>>>> 2ccf0aabe78d0f7aa0a68ef0a71d1f968443289f
