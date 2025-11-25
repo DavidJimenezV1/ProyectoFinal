@@ -18,18 +18,18 @@ class HomePage(TemplateView):
     Muestra información general de la empresa y productos destacados.
     """
     template_name = 'core/home.html'
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        
+
         # Obtener productos destacados
         context['productos_destacados'] = Producto.objects.all().order_by('?')[:4]
-        
+
         # Obtener categorías principales
         context['categorias'] = Categoria.objects.annotate(
             num_productos=Count('producto')
         ).filter(num_productos__gt=0)[:3]
-        
+
         return context
 
 class AdminDashboard(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
@@ -39,48 +39,48 @@ class AdminDashboard(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
     """
     template_name = 'core/dashboard.html'
     login_url = '/usuarios/login/'
-    
+
     def test_func(self):
         """Verificar que el usuario sea administrador"""
         return self.request.user.es_admin
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        
+
         context['total_productos'] = Producto.objects.count()
         context['total_clientes'] = Usuario.objects.filter(tipo_usuario='cliente').count()
         context['productos_sin_stock'] = Producto.objects.filter(stock=0).count()
         context['pedidos_recientes'] = Pedido.objects.all().order_by('-fecha_pedido')[:5]
-        
+
         return context
 
 def dashboard_stats(request):
     """API para obtener estadísticas del dashboard."""
     if not request.user.is_authenticated or not request.user.es_admin:
         return JsonResponse({'error': 'No autorizado'}, status=403)
-    
+
     dias = int(request.GET.get('dias', 30))
     fecha_inicio = timezone.now() - timedelta(days=dias)
-    
+
     pedidos = Pedido.objects.filter(fecha_creacion__gte=fecha_inicio)
-    
+
     pedidos_por_dia = list(pedidos.extra(
         select={'dia': "DATE(fecha_creacion)"}
     ).values('dia').annotate(
         total=Count('id')
     ).order_by('dia'))
-    
+
     top_productos = Producto.objects.filter(
         detallepedido__pedido__fecha_creacion__gte=fecha_inicio
     ).annotate(
         total_vendido=Sum('detallepedido__cantidad')
     ).order_by('-total_vendido')[:5]
-    
+
     top_productos_data = [{
         'nombre': p.nombre,
         'cantidad': p.total_vendido or 0
     } for p in top_productos]
-    
+
     return JsonResponse({
         'pedidos_por_dia': pedidos_por_dia,
         'top_productos': top_productos_data,
@@ -103,36 +103,55 @@ def get_admin_stats():
     Obtiene estadísticas REALES de la base de datos para el admin dashboard.
     """
     try:
+        # Productos
+        total_productos = Producto.objects.count()
+        productos_sin_stock = Producto.objects.filter(stock=0).count()
+
+        # Pedidos
+        total_pedidos = Pedido.objects.count()
+        pedidos_pendientes = Pedido.objects.filter(estado='pendiente').count() if hasattr(Pedido, 'estado') else 0
+        pedidos_en_proceso = Pedido.objects.filter(estado='en_proceso').count() if hasattr(Pedido, 'estado') else 0
+        pedidos_completados = Pedido.objects.filter(estado='completada').count() if hasattr(Pedido, 'estado') else 0
+
+        # Clientes
+        total_clientes = Usuario.objects.filter(tipo_usuario='cliente').count()
+        total_usuarios = Usuario.objects.count()
+
+        # Facturas e Ingresos
+        total_ventas = Factura.objects.count()
+        ingresos_result = Factura.objects.aggregate(total=Sum('total'))
+        ingresos_totales = ingresos_result['total'] or 0
+
+        # Categorías
+        total_categorias = Categoria.objects.count()
+
+        # Cotizaciones
+        cotizaciones_pendientes = Cotizacion.objects.filter(estado='pendiente').count()
+        total_cotizaciones = Cotizacion.objects.count()
+
         stats = {
-            # Productos
-            'total_productos': Producto.objects.count(),
-            'productos_sin_stock': Producto.objects.filter(stock=0).count(),
-            
-            # Pedidos
-            'total_pedidos': Pedido.objects.count(),
-            'pedidos_pendientes': Pedido.objects.filter(estado='pendiente').count(),
-            'pedidos_en_proceso': Pedido.objects.filter(estado='en_proceso').count(),
-            'pedidos_completados': Pedido.objects.filter(estado='completada').count(),
-            
-            # Clientes
-            'total_clientes': Usuario.objects.filter(tipo_usuario='cliente').count(),
-            'total_usuarios': Usuario.objects.count(),
-            
-            # Facturas e Ingresos
-            'total_ventas': Factura.objects.count(),
-            'ingresos_totales': Pedido.objects.aggregate(Sum('total'))['total__sum'] or 0,
-            
-            # Categorías
-            'total_categorias': Categoria.objects.count(),
-            
-            # Cotizaciones
-            'cotizaciones_pendientes': Cotizacion.objects.filter(estado='pendiente').count(),
-            'total_cotizaciones': Cotizacion.objects.count(),
+            'total_productos': total_productos,
+            'productos_sin_stock': productos_sin_stock,
+            'total_pedidos': total_pedidos,
+            'pedidos_pendientes': pedidos_pendientes,
+            'pedidos_en_proceso': pedidos_en_proceso,
+            'pedidos_completados': pedidos_completados,
+            'total_clientes': total_clientes,
+            'total_usuarios': total_usuarios,
+            'total_ventas': total_ventas,
+            'ingresos_totales': ingresos_totales,
+            'total_categorias': total_categorias,
+            'cotizaciones_pendientes': cotizaciones_pendientes,
+            'total_cotizaciones': total_cotizaciones,
         }
+
+        print(f"✅ DEBUG - Stats obtenidas correctamente: {stats}")
         return stats
-    
+
     except Exception as e:
-        print(f"Error al obtener estadísticas: {e}")
+        print(f"❌ ERROR al obtener estadísticas: {e}")
+        import traceback
+        traceback.print_exc()
         return {
             'total_productos': 0,
             'productos_sin_stock': 0,
@@ -152,27 +171,27 @@ def get_admin_stats():
 @staff_member_required
 def admin_dashboard(request):
     """Vista personalizada del dashboard administrativo"""
-    
+
     hoy = timezone.now()
     hace_un_mes = hoy - timedelta(days=30)
-    
+
     try:
         total_sales = Pedido.objects.filter(
             fecha_creacion__gte=hace_un_mes
         ).aggregate(Sum('total'))['total__sum'] or 0
-        
+
         pending_orders = Pedido.objects.filter(estado='pendiente').count()
-        
+
         total_inventory = Producto.objects.aggregate(
             Sum('stock')
         )['stock__sum'] or 0
-        
+
         active_customers = Usuario.objects.filter(tipo_usuario='cliente').count()
-        
+
         total_revenue = Pedido.objects.filter(
             fecha_creacion__gte=hace_un_mes
         ).aggregate(Sum('total'))['total__sum'] or 0
-        
+
         total_orders = Pedido.objects.filter(
             fecha_creacion__gte=hace_un_mes
         ).count()
@@ -183,12 +202,12 @@ def admin_dashboard(request):
         conversion_rate = round(
             (completed_orders / total_orders * 100) if total_orders > 0 else 0, 2
         )
-        
+
         orders_pending = Pedido.objects.filter(estado='pendiente').count()
         orders_in_process = Pedido.objects.filter(estado='en_proceso').count()
         orders_completed = Pedido.objects.filter(estado='completada').count()
         orders_cancelled = Pedido.objects.filter(estado='cancelada').count()
-        
+
         context = {
             'total_sales': int(total_sales),
             'pending_orders': pending_orders,
@@ -201,7 +220,7 @@ def admin_dashboard(request):
             'orders_completed': orders_completed,
             'orders_cancelled': orders_cancelled,
         }
-    
+
     except Exception as e:
         print(f"Error en admin_dashboard: {e}")
         context = {
@@ -216,5 +235,5 @@ def admin_dashboard(request):
             'orders_completed': 0,
             'orders_cancelled': 0,
         }
-    
+
     return render(request, 'admin_custom/dashboard_enhanced.html', context)

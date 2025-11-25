@@ -4,6 +4,7 @@ from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.http import HttpResponse
 from django.urls import path, reverse
+from .admin_site import custom_admin_site
 from .views import get_admin_stats
 
 # Importaciones de Modelos
@@ -15,6 +16,36 @@ from ventas.models import Factura, ItemFactura
 from core.utils import formato_pesos
 
 
+# ==================== INVENTARIO ====================
+
+class ImagenProductoInline(admin.TabularInline):
+    model = None  # Se definirá en la app inventario
+    extra = 1
+
+
+class ProductoAdmin(admin.ModelAdmin):
+    list_display = ('nombre', 'codigo', 'precio', 'stock', 'categoria')
+    search_fields = ('nombre', 'codigo', 'descripcion')
+    list_filter = ('categoria',)
+    fieldsets = (
+        ('Información básica', {
+            'fields': ('nombre', 'codigo', 'categoria', 'descripcion')
+        }),
+        ('Inventario', {
+            'fields': ('precio', 'stock', 'stock_minimo')
+        }),
+    )
+
+
+class CategoriaAdmin(admin.ModelAdmin):
+    list_display = ('nombre',)
+    search_fields = ('nombre',)
+
+
+custom_admin_site.register(Producto, ProductoAdmin)
+custom_admin_site.register(Categoria, CategoriaAdmin)
+
+
 # ==================== COTIZACIONES ====================
 
 class DetallesCotizacionEnLinea(admin.TabularInline):
@@ -22,7 +53,7 @@ class DetallesCotizacionEnLinea(admin.TabularInline):
     extra = 1
     fields = ('producto', 'cantidad', 'precio_unitario', 'subtotal_display', 'notas')
     readonly_fields = ('subtotal_display',)
-    
+
     def subtotal_display(self, obj):
         """Muestra el subtotal calculado"""
         from decimal import Decimal
@@ -60,14 +91,14 @@ class AdminCotizacion(admin.ModelAdmin):
     def acciones_lista(self, obj):
         """Botones de acción en la lista del admin"""
         botones = ''
-        
+
         if obj.estado == 'pendiente':
             url_responder = reverse('cotizaciones:responder_cotizacion', args=[obj.pk])
             botones += f'<a class="button" href="{url_responder}" style="background-color: #417690; padding: 5px 10px; border-radius: 3px; color: white; text-decoration: none; margin-right: 5px;">📧 Responder</a>'
-        
+
         url_pdf = reverse('cotizaciones:descargar_pdf', args=[obj.pk])
         botones += f'<a class="button" href="{url_pdf}" style="background-color: #d9534f; padding: 5px 10px; border-radius: 3px; color: white; text-decoration: none;">📄 PDF</a>'
-        
+
         return mark_safe(botones)
     acciones_lista.short_description = 'Acciones'
 
@@ -75,7 +106,7 @@ class AdminCotizacion(admin.ModelAdmin):
         """Botón para descargar PDF en el detalle"""
         if obj.pk is None:
             return mark_safe('<span class="text-muted">Disponible después de guardar</span>')
-        
+
         url_pdf = reverse('cotizaciones:descargar_pdf', args=[obj.pk])
         return mark_safe(
             f'<a class="button" href="{url_pdf}" target="_blank" style="background-color: #d9534f; padding: 8px 15px; '
@@ -94,7 +125,7 @@ class AdminCotizacion(admin.ModelAdmin):
     total_display.short_description = 'Total Final'
 
 
-admin.site.register(Cotizacion, AdminCotizacion)
+custom_admin_site.register(Cotizacion, AdminCotizacion)
 
 
 # ==================== FACTURACIÓN ====================
@@ -111,7 +142,7 @@ class ItemFacturaEnLinea(admin.TabularInline):
         return mark_safe(
             '<button type="button" class="recalcular-btn" data-id="%s" '
             'style="background-color: #417690; padding: 5px 10px; border-radius: 3px; '
-            'color: white; border: none; cursor: pointer;">🔄 Recalcular</button>' % (obj.pk if obj.pk else '')
+            'color: white; border: none; cursor: pointer;">📄 Recalcular</button>' % (obj.pk if obj.pk else '')
         )
     boton_recalcular.short_description = 'Acción'
 
@@ -165,7 +196,7 @@ class AdminFactura(admin.ModelAdmin):
     def enlace_descargar_pdf(self, obj):
         """Muestra un enlace para descargar el PDF"""
         return format_html(
-            '<a class="button" href="{}" style="background-color: #417690; padding: 5px 10px; border-radius: 3px; color: white; text-decoration: none;">📥 PDF</a>',
+            '<a class="button" href="{}" style="background-color: #417690; padding: 5px 10px; border-radius: 3px; color: white; text-decoration: none;">🔥 PDF</a>',
             reverse('admin:ventas_factura_descargar_pdf', args=[obj.pk])
         )
     enlace_descargar_pdf.short_description = 'Descargar'
@@ -226,14 +257,14 @@ class AdminFactura(admin.ModelAdmin):
         """
         from ventas.utils import generar_pdf_factura
         factura = self.get_object(request, object_id)
-        
+
         pdf_buffer = generar_pdf_factura(factura)
-        
+
         response = HttpResponse(pdf_buffer, content_type='application/pdf')
         response['Content-Disposition'] = f'attachment; filename="Factura_{factura.numero}.pdf"'
-        
+
         return response
-    
+
     def get_urls(self):
         """
         Agregar URLs personalizadas
@@ -261,3 +292,5 @@ class AdminItemFactura(admin.ModelAdmin):
     autocomplete_fields = ['producto', 'factura']
 
 
+custom_admin_site.register(Factura, AdminFactura)
+custom_admin_site.register(ItemFactura, AdminItemFactura)

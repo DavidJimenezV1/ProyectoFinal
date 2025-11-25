@@ -13,16 +13,18 @@ class CotizacionForm(forms.ModelForm):
 class DetalleCotizacionForm(forms.ModelForm):
     class Meta:
         model = DetalleCotizacion
-        fields = ['producto', 'cantidad', 'notas']
+        fields = ['producto', 'cantidad', 'precio_unitario', 'notas']
         widgets = {
             'notas': forms.TextInput(attrs={'placeholder': 'Ej: Color específico, tamaño personalizado...'}),
         }
 
 # Formset para manejar múltiples items de cotización
 DetalleCotizacionFormSet = inlineformset_factory(
-    Cotizacion, 
+    Cotizacion,
     DetalleCotizacion,
     form=DetalleCotizacionForm,
-    extra=1,
-    can_delete=True
+    extra=10,
+    can_delete=True,
+    min_num=1,
+    validate_min=True
 )

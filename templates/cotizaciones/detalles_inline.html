@@ -1,0 +1,70 @@
+{% load admin_urls static admin %}
+
+<div class="inline-group" id="{{ inline_admin_formset.formset.prefix }}-group">
+    <div class="tabular inline-related {% if forloop.last %}last-related{% endif %}">
+        <fieldset class="module">
+            <h2>{{ inline_admin_formset.opts.verbose_name_plural|capfirst }}</h2>
+
+            {{ inline_admin_formset.formset.management_form }}
+            {{ inline_admin_formset.formset.non_form_errors }}
+
+            <table>
+                <thead>
+                    <tr>
+                        {% for field in inline_admin_formset.fields %}
+                            {% if field.name != "DELETE" %}
+                                <th class="field-{{ field.name }}">{{ field.label }}</th>
+                            {% endif %}
+                        {% endfor %}
+                        <th>{% trans "Eliminar?" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for inline_admin_form in inline_admin_formset %}
+                        {% if inline_admin_form.form.non_field_errors %}
+                            <tr>
+                                <td colspan="{{ inline_admin_formset.fields|length|add:1 }}">
+                                    {{ inline_admin_form.form.non_field_errors }}
+                                </td>
+                            </tr>
+                        {% endif %}
+                        <tr class="form-row {% cycle 'row1' 'row2' %} {% if inline_admin_form.form.non_field_errors %}errors{% endif %}">
+                            {% for field in inline_admin_formset.fields %}
+                                {% if field.name != "DELETE" %}
+                                    <td class="field-{{ field.name }}">
+                                        {% if inline_admin_form.form.is_bound %}
+                                            {{ inline_admin_form.form[field.name].errors }}
+                                        {% endif %}
+                                        {{ inline_admin_form.form[field.name] }}
+                                    </td>
+                                {% endif %}
+                            {% endfor %}
+                            <td class="delete">
+                                {% if inline_admin_form.form.instance.pk %}{{ inline_admin_form.form.DELETE }}{% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <!-- BOTÓN AGREGAR MÁS -->
+            <div class="add-row-container" style="padding: 20px 0; background: transparent;">
+                <a href="#" class="add-row-btn" onclick="return false;" style="background: linear-gradient(135deg, #27AE60 0%, #229954 100%) !important; color: white !important; padding: 14px 28px !important; border-radius: 8px !important; text-decoration: none !important; font-weight: 700 !important; display: inline-block !important; transition: all 0.3s ease !important; font-size: 14px !important; border: none !important; cursor: pointer !important;">
+                    ➕ Agregar otro {{ inline_admin_formset.opts.verbose_name }}
+                </a>
+            </div>
+        </fieldset>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const addBtn = document.querySelector('.add-row-btn');
+    if (addBtn) {
+        addBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log('✅ Botón agregar clickeado');
+        });
+    }
+});
+</script>

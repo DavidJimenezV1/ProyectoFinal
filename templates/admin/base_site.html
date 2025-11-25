@@ -8,6 +8,10 @@
     <link rel="stylesheet" href="{% static 'css/admin_unified.css' %}">
     <link rel="stylesheet" href="{% static 'css/admin_dark.css' %}">
     <link rel="stylesheet" href="{% static 'css/admin_resumen_fix.css' %}">
+    <link rel="stylesheet" href="{% static 'css/admin_fix_select.css' %}">
+    <link rel="stylesheet" href="{% static 'css/admin_inline_fix.css' %}">
+    <script src="{% static 'js/cotizacion_admin.js' %}"></script>
+    <script src="{% static 'js/add_inline_row.js' %}"></script>
     <style>
         /* ==================== HEADER PERSONALIZADO ==================== */
         #header {
@@ -85,7 +89,6 @@
         }
 
         /* ==================== RESTO DE COLUMNAS - SIN FONDO MORADO ==================== */
-        /* Quitar el fondo morado de todas las celdas */
         tr[style*="background-color: rgb(102"],
         tr[style*="background-color: rgb(118"],
         tr[style*="background: rgb(102"],
@@ -98,7 +101,6 @@
             background: transparent !important;
         }
 
-        /* Celdas del resto (no primera columna) - fondo transparente, texto normal */
         tr[style*="background-color: rgb(102"] td:not(:first-child),
         tr[style*="background-color: rgb(118"] td:not(:first-child),
         tr[style*="background: rgb(102"] td:not(:first-child),
@@ -128,7 +130,6 @@
             background: transparent !important;
         }
 
-        /* Filas alternadas */
         tbody tr:nth-child(even) {
             background-color: #f9fafb !important;
         }
@@ -139,6 +140,39 @@
 
         tbody tr:hover {
             background-color: rgba(102, 126, 234, 0.1) !important;
+        }
+
+        /* ==================== FILAS CON FONDO MORADO - TEXTO BLANCO ==================== */
+        tr[style*="background-color: rgb(102"] td,
+        tr[style*="background-color: rgb(118"] td,
+        tr[style*="background: rgb(102"] td,
+        tr[style*="background: rgb(118"] td,
+        tr[style*="background-color: #667eea"] td,
+        tr[style*="background-color: #764ba2"] td,
+        tr[style*="background: #667eea"] td,
+        tr[style*="background: #764ba2"] td {
+            color: #ffffff !important;
+            font-weight: 900 !important;
+        }
+
+        /* ==================== TEXTO BLANCO EN CELDAS CON FONDO MORADO ==================== */
+        .change-list tbody tr td {
+            color: #333333 !important;
+        }
+
+        .change-list tbody tr[style*="background"] td,
+        .change-list tbody tr[style*="background-color"] td {
+            color: #ffffff !important;
+            font-weight: 900 !important;
+        }
+
+        /* IDs y datos en filas moradas */
+        .change-list tbody tr td span {
+            color: #ffffff !important;
+        }
+
+        .change-list tbody tr[style*="background"] td span {
+            color: #ffffff !important;
         }
 
         /* ==================== BREADCRUMBS ==================== */
@@ -233,53 +267,9 @@
             color: #0c5460 !important;
             border-left-color: #1ABC9C !important;
         }
-
-        /* ==================== FILAS CON FONDO MORADO - TEXTO BLANCO ==================== */
-        /* Todas las celdas de filas moradas = BLANCO */
-        tr[style*="background-color: rgb(102"] td,
-        tr[style*="background-color: rgb(118"] td,
-        tr[style*="background: rgb(102"] td,
-        tr[style*="background: rgb(118"] td,
-        tr[style*="background-color: #667eea"] td,
-        tr[style*="background-color: #764ba2"] td,
-        tr[style*="background: #667eea"] td,
-        tr[style*="background: #764ba2"] td {
-            color: #ffffff !important;
-            font-weight: 900 !important;
-        }
     </style>
 {% endblock %}
 
 {% block content %}
     {{ block.super }}
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Función para aplicar estilos a filas moradas
-            function applyWhiteTextToRows() {
-                // Buscar todas las filas con fondo morado
-                const rows = document.querySelectorAll('tbody tr[style*="background"]');
-                rows.forEach(row => {
-                    const cells = row.querySelectorAll('td');
-                    cells.forEach(cell => {
-                        // Aplicar estilo directo a la celda
-                        cell.style.color = '#ffffff';
-                        cell.style.fontWeight = '900';
-                        
-                        // Aplicar a todos los elementos dentro
-                        const allElements = cell.querySelectorAll('*');
-                        allElements.forEach(el => {
-                            el.style.color = '#ffffff';
-                            el.style.fontWeight = '900';
-                        });
-                    });
-                });
-            }
-            
-            // Ejecutar al cargar
-            applyWhiteTextToRows();
-            
-            // Ejecutar cada 500ms por si hay cambios dinámicos
-            setInterval(applyWhiteTextToRows, 500);
-        });
-    </script>
 {% endblock %}

@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import reverse
-from django.utils.safestring import mark_safe
+from django.utils. safestring import mark_safe
 from .models import Cotizacion, DetalleCotizacion
 
 
@@ -9,13 +9,12 @@ class DetalleCotizacionInline(admin.TabularInline):
     extra = 1
     fields = ('producto', 'cantidad', 'precio_unitario', 'subtotal_display', 'notas')
     readonly_fields = ('subtotal_display',)
-    
+
     def subtotal_display(self, obj):
         """Muestra el subtotal calculado"""
         from decimal import Decimal
         if obj.precio_unitario and obj.cantidad:
             subtotal = obj.precio_unitario * obj.cantidad
-            # Aplicar IVA si está habilitado en la cotización
             if obj.cotizacion.incluir_iva:
                 subtotal = subtotal * Decimal('1.19')
             return f"${subtotal:,.2f}"
@@ -23,7 +22,7 @@ class DetalleCotizacionInline(admin.TabularInline):
     subtotal_display.short_description = 'Subtotal'
 
 
-class CotizacionAdmin(admin.ModelAdmin):
+class CotizacionAdmin(admin. ModelAdmin):
     list_display = ['id_colored', 'cliente_colored', 'fecha_colored', 'estado_colored', 'total_colored', 'num_items_colored', 'acciones_list']
     list_filter = ['estado', 'fecha_solicitud']
     search_fields = ['cliente__username', 'cliente__first_name', 'cliente__last_name']
@@ -45,24 +44,22 @@ class CotizacionAdmin(admin.ModelAdmin):
         }),
     )
 
-    # ==================== MÉTODOS CON COLORES ====================
-    
     def id_colored(self, obj):
         """ID con fondo AZUL y letras BLANCAS"""
         return mark_safe(
             f'<span style="background-color: #4169E1; color: white; padding: 8px 12px; '
             f'border-radius: 4px; font-weight: 900; display: inline-block;">{obj.id}</span>'
         )
-    id_colored.short_description = 'ID'
+    id_colored. short_description = 'ID'
 
     def cliente_colored(self, obj):
         """Cliente con fondo PÚRPURA y letras BLANCAS"""
-        cliente_nombre = obj.cliente.get_full_name() or obj.cliente.username
+        cliente_nombre = obj.cliente.get_full_name() or obj.cliente. username
         return mark_safe(
             f'<span style="background-color: #8B5FBF; color: white; padding: 8px 12px; '
             f'border-radius: 4px; font-weight: 900; display: inline-block;">{cliente_nombre}</span>'
         )
-    cliente_colored.short_description = 'Cliente'
+    cliente_colored. short_description = 'Cliente'
 
     def fecha_colored(self, obj):
         """Fecha con fondo VERDE y letras BLANCAS"""
@@ -82,13 +79,13 @@ class CotizacionAdmin(admin.ModelAdmin):
             'rechazada': '#F44336',
             'convertida': '#9C27B0',
         }
-        color = colores.get(obj.estado, '#757575')
-        estado_display = dict(obj.ESTADO_CHOICES).get(obj.estado, obj.estado)
+        color = colores.get(obj. estado, '#757575')
+        estado_display = dict(obj. ESTADO_CHOICES).get(obj.estado, obj. estado)
         return mark_safe(
             f'<span style="background-color: {color}; color: white; padding: 8px 12px; '
             f'border-radius: 4px; font-weight: 900; display: inline-block;">{estado_display}</span>'
         )
-    estado_colored.short_description = 'Estado'
+    estado_colored. short_description = 'Estado'
 
     def total_colored(self, obj):
         """Total con fondo ROJO y letras BLANCAS"""
@@ -109,16 +106,14 @@ class CotizacionAdmin(admin.ModelAdmin):
     def acciones_list(self, obj):
         """Botones de acción en la lista del admin"""
         buttons = ''
-        
-        # Botón Responder
+
         if obj.estado == 'pendiente':
-            responder_url = reverse('cotizaciones:responder_cotizacion', args=[obj.pk])
-            buttons += f'<a class="button" href="{responder_url}" style="background-color: #417690; padding: 5px 10px; border-radius: 3px; color: white; text-decoration: none; margin-right: 5px;">📧 Responder</a>'
-        
-        # Botón Descargar PDF
+            responder_url = reverse('cotizaciones:responder_cotizacion', args=[obj. pk])
+            buttons += f'<a class="button" href="{responder_url}" style="background-color: #417690; padding: 5px 10px; border-radius: 3px; color: white; text-decoration: none; margin-right: 5px;">✉️ Responder</a>'
+
         pdf_url = reverse('cotizaciones:descargar_pdf', args=[obj.pk])
         buttons += f'<a class="button" href="{pdf_url}" style="background-color: #d9534f; padding: 5px 10px; border-radius: 3px; color: white; text-decoration: none;">📄 PDF</a>'
-        
+
         return mark_safe(buttons)
     acciones_list.short_description = 'Acciones'
 
@@ -126,7 +121,7 @@ class CotizacionAdmin(admin.ModelAdmin):
         """Botón para descargar PDF en el detalle"""
         if obj.pk is None:
             return mark_safe('<span class="text-muted">Disponible después de guardar</span>')
-        
+
         pdf_url = reverse('cotizaciones:descargar_pdf', args=[obj.pk])
         return mark_safe(
             f'<a class="button" href="{pdf_url}" target="_blank" style="background-color: #d9534f; padding: 8px 15px; '
@@ -140,16 +135,27 @@ class CotizacionAdmin(admin.ModelAdmin):
         total = obj.total
         return mark_safe(
             f'<span id="total-display" style="font-size: 18px; font-weight: bold; color: #28a745;">'
-            f'${total:,.2f}</span>'
+            f'${total:,. 2f}</span>'
         )
     total_display.short_description = 'Total Final'
+
+    class Media:
+        js = (
+            'js/cotizacion_admin_fixed.js',
+        )
+        css = {
+            'all': (
+                'css/admin_inline_fix.css',
+                'css/admin_fix_select.css',
+            )
+        }
 
 
 class DetalleCotizacionAdmin(admin.ModelAdmin):
     list_display = ('cotizacion', 'producto', 'cantidad', 'precio_unitario', 'subtotal_display')
     list_filter = ('cotizacion__estado',)
     search_fields = ('cotizacion__id', 'producto__nombre')
-    
+
     def subtotal_display(self, obj):
         """Muestra el subtotal calculado"""
         from decimal import Decimal
@@ -159,4 +165,8 @@ class DetalleCotizacionAdmin(admin.ModelAdmin):
                 subtotal = subtotal * Decimal('1.19')
             return f"${subtotal:,.2f}"
         return "---"
-    subtotal_display.short_description = 'Subtotal'
+    subtotal_display. short_description = 'Subtotal'
+
+
+admin.site.register(Cotizacion, CotizacionAdmin)
+admin.site.register(DetalleCotizacion, DetalleCotizacionAdmin)
