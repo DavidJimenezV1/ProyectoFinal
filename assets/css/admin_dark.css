@@ -189,13 +189,14 @@ table {
     background-color: white;
 }
 
+/* HEADERS - BLANCO SOBRE MORADO */
 thead th {
-    background: linear-gradient(135deg, #f0f0f0 0%, #e0e0e0 100%);
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
     padding: 12px 15px;
     text-align: left;
     font-weight: 600;
-    color: var(--text-dark);
-    border-bottom: 2px solid #d0d0d0;
+    color: #ffffff;  /* ✅ BLANCO para contraste */
+    border-bottom: 2px solid #667eea;
 }
 
 tbody tr {
@@ -212,18 +213,35 @@ tbody tr:hover {
     background-color: #f5f5f5;
 }
 
+/* CELDAS - TEXTO OSCURO POR DEFECTO */
 td {
     padding: 12px 15px;
     background-color: transparent;
+    color: #333333;  /* ✅ GRIS OSCURO para legibilidad */
+}
+
+/* Si una celda tiene fondo personalizado, detectar y poner blanco */
+td[style*="background-color: rgb(102"],
+td[style*="background-color: rgb(118"],
+td[style*="background: rgb(102"],
+td[style*="background: rgb(118"],
+td[style*="background-color: #667eea"],
+td[style*="background-color: #764ba2"],
+td[style*="background: #667eea"],
+td[style*="background: #764ba2"] {
+    color: #ffffff !important;
+    font-weight: 600 !important;
 }
 
 /* Remover cualquier fondo azul o inconsistente */
 .row1 {
     background-color: white !important;
+    color: #333333 !important;
 }
 
 .row2 {
     background-color: #fafafa !important;
+    color: #333333 !important;
 }
 
 /* ============================================

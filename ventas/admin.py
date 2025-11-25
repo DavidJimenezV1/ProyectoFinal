@@ -5,14 +5,12 @@ from django.http import HttpResponse
 from django.urls import path, reverse
 from .models import Factura, ItemFactura
 from .utils import generar_pdf_factura
-from inventario.models import Producto
 
 class ItemFacturaInline(admin.TabularInline):
     model = ItemFactura
     extra = 1
     fields = ('producto', 'cantidad', 'precio_unitario', 'subtotal_display', 'recalcular_btn')
     readonly_fields = ('subtotal_display', 'recalcular_btn')
-    autocomplete_fields = ['producto']
 
     def recalcular_btn(self, obj):
         """Botón para recalcular el subtotal"""
@@ -43,7 +41,6 @@ class ItemFacturaInline(admin.TabularInline):
 
         return formset
 
-@admin.register(Factura)
 class FacturaAdmin(admin.ModelAdmin):
     inlines = [ItemFacturaInline]
     list_display = ('numero', 'nombre_cliente', 'fecha_emision', 'mostrar_total', 'estado', 'con_iva', 'descargar_pdf_link')
@@ -170,20 +167,7 @@ class FacturaAdmin(admin.ModelAdmin):
             'js/factura_admin.js',
         )
 
-@admin.register(ItemFactura)
 class ItemFacturaAdmin(admin.ModelAdmin):
     list_display = ('factura', 'producto', 'cantidad', 'precio_unitario', 'subtotal')
     list_filter = ('factura__estado',)
     search_fields = ('factura__numero', 'producto__nombre')
-    autocomplete_fields = ['producto', 'factura']
-
-# ✅ REGISTRAR PRODUCTO PARA AUTOCOMPLETE
-@admin.register(Producto)
-class ProductoAdmin(admin.ModelAdmin):
-    search_fields = ('nombre', 'codigo')
-    list_display = ('nombre', 'codigo', 'precio', 'stock')
-
-# Cambiar el título del admin
-admin.site.site_header = 'Tejos Olímpica - Administración'
-admin.site.site_title = 'Tejos Olímpica'
-admin.site.index_title = 'Panel de Control'

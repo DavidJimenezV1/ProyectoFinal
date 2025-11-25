@@ -131,11 +131,11 @@ AUTH_USER_MODEL = 'usuarios.Usuario'
 
 # ==================== ADMIN PERSONALIZADO ====================
 from django.contrib import admin
-try:
-    from config.admin import CustomAdminSite
-    admin.site = CustomAdminSite(name='admin')
-except:
-    pass
+from config.admin import admin_site
+
+# Usar el sitio personalizado
+admin.site = admin_site
+# ==================== FIN ADMIN PERSONALIZADO ====================
 
 # Configuración de DRF
 REST_FRAMEWORK = {

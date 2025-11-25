@@ -38,7 +38,7 @@ class AdminRegistroAuditoria(admin.ModelAdmin):
     )
     
     def resumen_corto(self, obj):
-        """Muestra un resumen corto del cambio"""
+        """Muestra un resumen corto del cambio - CON TEXTO BLANCO"""
         emojis = {
             'CREATE': '✅',
             'UPDATE': '🔄',
@@ -46,7 +46,10 @@ class AdminRegistroAuditoria(admin.ModelAdmin):
             'VIEW': '👁️'
         }
         emoji = emojis.get(obj.accion, '📝')
-        return f"{emoji} {obj.objeto_nombre}"
+        return format_html(
+            '<span style="color: #ffffff !important; font-weight: 900;">{} {}</span>',
+            emoji, obj.objeto_nombre
+        )
     resumen_corto.short_description = "Resumen"
     
     def usuario_display(self, obj):
@@ -163,9 +166,17 @@ class AdminRegistroAuditoria(admin.ModelAdmin):
 # ==================== HISTORIAL PRODUCTO ====================
 
 class AdminHistorialProducto(admin.ModelAdmin):
-    list_display = ('producto_id', 'usuario_display', 'accion_display', 'precio_cambio', 'stock_cambio', 'descripcion_display', 'fecha_hora_display')
+    list_display = ('producto_id_display', 'usuario_display', 'accion_display', 'precio_cambio', 'stock_cambio', 'descripcion_display', 'fecha_hora_display')
     list_filter = ('audit_log__accion', 'audit_log__timestamp', 'audit_log__usuario')
     readonly_fields = ('audit_log', 'producto_id', 'precio_display', 'stock_display', 'descripcion_completa', 'fecha_hora_display')
+    
+    def producto_id_display(self, obj):
+        """Muestra el ID del producto en BLANCO"""
+        return format_html(
+            '<span style="color: #ffffff !important; font-weight: 900;">{}</span>',
+            obj.producto_id
+        )
+    producto_id_display.short_description = "Producto ID"
     
     def usuario_display(self, obj):
         if obj.audit_log.usuario:
@@ -246,9 +257,17 @@ class AdminHistorialProducto(admin.ModelAdmin):
 # ==================== HISTORIAL PEDIDO ====================
 
 class AdminHistorialPedido(admin.ModelAdmin):
-    list_display = ('pedido_id', 'usuario_display', 'accion_display', 'estado_cambio', 'cliente_display', 'descripcion_display', 'fecha_hora_display')
+    list_display = ('pedido_id_display', 'usuario_display', 'accion_display', 'estado_cambio', 'cliente_display', 'descripcion_display', 'fecha_hora_display')
     list_filter = ('audit_log__accion', 'audit_log__timestamp', 'audit_log__usuario')
     readonly_fields = ('audit_log', 'pedido_id', 'estado_display', 'cliente_display_full', 'descripcion_completa', 'fecha_hora_display')
+    
+    def pedido_id_display(self, obj):
+        """Muestra el ID del pedido en BLANCO"""
+        return format_html(
+            '<span style="color: #ffffff !important; font-weight: 900;">{}</span>',
+            obj.pedido_id
+        )
+    pedido_id_display.short_description = "Pedido ID"
     
     def usuario_display(self, obj):
         if obj.audit_log.usuario:
@@ -324,9 +343,17 @@ class AdminHistorialPedido(admin.ModelAdmin):
 # ==================== HISTORIAL COTIZACIÓN ====================
 
 class AdminHistorialCotizacion(admin.ModelAdmin):
-    list_display = ('cotizacion_id', 'usuario_display', 'accion_display', 'estado_cambio', 'monto_cambio', 'descripcion_display', 'fecha_hora_display')
+    list_display = ('cotizacion_id_display', 'usuario_display', 'accion_display', 'estado_cambio', 'monto_cambio', 'descripcion_display', 'fecha_hora_display')
     list_filter = ('audit_log__accion', 'audit_log__timestamp', 'audit_log__usuario')
     readonly_fields = ('audit_log', 'cotizacion_id', 'estado_display', 'monto_display', 'descripcion_completa', 'fecha_hora_display')
+    
+    def cotizacion_id_display(self, obj):
+        """Muestra el ID de la cotización en BLANCO"""
+        return format_html(
+            '<span style="color: #ffffff !important; font-weight: 900;">{}</span>',
+            obj.cotizacion_id
+        )
+    cotizacion_id_display.short_description = "Cotización ID"
     
     def usuario_display(self, obj):
         if obj.audit_log.usuario:
@@ -428,9 +455,17 @@ class AdminHistorialCotizacion(admin.ModelAdmin):
 # ==================== HISTORIAL FACTURA ====================
 
 class AdminHistorialFactura(admin.ModelAdmin):
-    list_display = ('factura_id', 'usuario_display', 'accion_display', 'estado_cambio', 'monto_cambio', 'descripcion_display', 'fecha_hora_display')
+    list_display = ('factura_id_display', 'usuario_display', 'accion_display', 'estado_cambio', 'monto_cambio', 'descripcion_display', 'fecha_hora_display')
     list_filter = ('audit_log__accion', 'audit_log__timestamp', 'audit_log__usuario')
     readonly_fields = ('audit_log', 'factura_id', 'estado_display', 'monto_display', 'descripcion_completa', 'fecha_hora_display')
+    
+    def factura_id_display(self, obj):
+        """Muestra el ID de la factura en BLANCO"""
+        return format_html(
+            '<span style="color: #ffffff !important; font-weight: 900;">{}</span>',
+            obj.factura_id
+        )
+    factura_id_display.short_description = "Factura ID"
     
     def usuario_display(self, obj):
         if obj.audit_log.usuario:
@@ -532,9 +567,17 @@ class AdminHistorialFactura(admin.ModelAdmin):
 # ==================== HISTORIAL CLIENTE ====================
 
 class AdminHistorialCliente(admin.ModelAdmin):
-    list_display = ('cliente_id', 'usuario_display', 'accion_display', 'cambios_preview', 'descripcion_display', 'fecha_hora_display')
+    list_display = ('cliente_id_display', 'usuario_display', 'accion_display', 'cambios_preview', 'descripcion_display', 'fecha_hora_display')
     list_filter = ('audit_log__accion', 'audit_log__timestamp', 'audit_log__usuario')
     readonly_fields = ('audit_log', 'cliente_id', 'cambios_display', 'descripcion_completa', 'fecha_hora_display')
+    
+    def cliente_id_display(self, obj):
+        """Muestra el ID del cliente en BLANCO"""
+        return format_html(
+            '<span style="color: #ffffff !important; font-weight: 900;">{}</span>',
+            obj.cliente_id
+        )
+    cliente_id_display.short_description = "Cliente ID"
     
     def usuario_display(self, obj):
         if obj.audit_log.usuario:
@@ -604,9 +647,17 @@ class AdminHistorialCliente(admin.ModelAdmin):
 # ==================== HISTORIAL CATEGORÍA ====================
 
 class AdminHistorialCategoria(admin.ModelAdmin):
-    list_display = ('categoria_id', 'usuario_display', 'accion_display', 'nombre_cambio', 'descripcion_display', 'fecha_hora_display')
+    list_display = ('categoria_id_display', 'usuario_display', 'accion_display', 'nombre_cambio', 'descripcion_display', 'fecha_hora_display')
     list_filter = ('audit_log__accion', 'audit_log__timestamp', 'audit_log__usuario')
     readonly_fields = ('audit_log', 'categoria_id', 'nombre_display', 'descripcion_detail', 'descripcion_completa', 'fecha_hora_display')
+    
+    def categoria_id_display(self, obj):
+        """Muestra el ID de la categoría en BLANCO"""
+        return format_html(
+            '<span style="color: #ffffff !important; font-weight: 900;">{}</span>',
+            obj.categoria_id
+        )
+    categoria_id_display.short_description = "Categoría ID"
     
     def usuario_display(self, obj):
         if obj.audit_log.usuario:

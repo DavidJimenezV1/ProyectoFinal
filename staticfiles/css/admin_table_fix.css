@@ -1,0 +1,40 @@
+/* ============================================================
+   FIX PARA TODAS LAS TABLAS - REMOVER FONDOS MORADOS
+   ============================================================ */
+
+/* Remover TODO fondo de filas alternadas */
+tbody tr {
+    background-color: white !important;
+    background: white !important;
+}
+
+tbody tr:nth-child(even) {
+    background-color: #f5f5f5 !important;
+    background: #f5f5f5 !important;
+}
+
+/* Todas las celdas = texto oscuro */
+tbody td {
+    color: #333333 !important;
+    background-color: transparent !important;
+    background: transparent !important;
+}
+
+/* Headers = texto blanco */
+thead th,
+th {
+    color: #ffffff !important;
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%) !important;
+}
+
+/* Remover estilos inline problemáticos */
+tbody tr[style] {
+    background-color: white !important;
+    background: white !important;
+}
+
+tbody tr[style] td {
+    background-color: transparent !important;
+    background: transparent !important;
+    color: #333333 !important;
+}

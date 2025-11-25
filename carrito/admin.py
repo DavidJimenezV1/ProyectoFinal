@@ -1,3 +1,4 @@
 from django.contrib import admin
 
-# Register your models here.
+# El carrito se maneja en sesiones, no tiene modelo en BD
+# Este archivo existe solo para mantener la estructura de la app

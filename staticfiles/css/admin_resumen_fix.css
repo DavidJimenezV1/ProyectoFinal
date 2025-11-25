@@ -1,0 +1,114 @@
+/* ============================================================
+   FIX NUCLEAR PARA COLUMNA RESUMEN - MÁXIMA PRIORIDAD ABSOLUTA
+   ============================================================ */
+
+/* FORZAR BLANCO EN TODAS LAS CELDAS DE PRIMERA COLUMNA */
+tbody tr td:first-child,
+tbody tr:first-child td {
+    color: #ffffff !important;
+    font-weight: 900 !important;
+}
+
+/* Todos los elementos DENTRO de la primera columna - SIN EXCEPCIONES */
+tbody tr td:first-child * {
+    color: #ffffff !important;
+    font-weight: 900 !important;
+}
+
+tbody tr td:first-child span {
+    color: #ffffff !important;
+    font-weight: 900 !important;
+}
+
+tbody tr td:first-child a {
+    color: #ffffff !important;
+    font-weight: 900 !important;
+}
+
+tbody tr td:first-child strong {
+    color: #ffffff !important;
+    font-weight: 900 !important;
+}
+
+tbody tr td:first-child em {
+    color: #ffffff !important;
+    font-weight: 900 !important;
+}
+
+tbody tr td:first-child div {
+    color: #ffffff !important;
+    font-weight: 900 !important;
+}
+
+tbody tr td:first-child p {
+    color: #ffffff !important;
+    font-weight: 900 !important;
+}
+
+/* Override para elementos con style inline */
+tbody tr td:first-child[style] {
+    color: #ffffff !important;
+}
+
+tbody tr td:first-child[style] * {
+    color: #ffffff !important;
+}
+
+/* Selector muy específico para spans */
+td:first-child span[style] {
+    color: #ffffff !important;
+}
+
+/* Última línea de defensa - selector universal en primera celda */
+tbody tr > td:first-of-type {
+    color: #ffffff !important;
+}
+
+tbody tr > td:first-of-type * {
+    color: #ffffff !important;
+}
+
+tbody tr > td:nth-child(1) {
+    color: #ffffff !important;
+}
+
+tbody tr > td:nth-child(1) * {
+    color: #ffffff !important;
+}
+
+/* Para filas con fondo morado específico */
+tr[style*="rgb(102"] td:first-child,
+tr[style*="rgb(118"] td:first-child,
+tr[style*="#667eea"] td:first-child,
+tr[style*="#764ba2"] td:first-child {
+    color: #ffffff !important;
+}
+
+tr[style*="rgb(102"] td:first-child *,
+tr[style*="rgb(118"] td:first-child *,
+tr[style*="#667eea"] td:first-child *,
+tr[style*="#764ba2"] td:first-child * {
+    color: #ffffff !important;
+}
+
+/* Forzar estilo en línea - anula todo */
+body tbody tr td:first-child {
+    color: #ffffff !important;
+}
+
+body tbody tr td:first-child span {
+    color: #ffffff !important;
+}
+
+/* Selectores de atributo - buscar cualquier elemento con color en línea */
+[style*="color"] {
+    color: #ffffff !important;
+}
+
+td:first-child {
+    color: #ffffff !important;
+}
+
+td:first-child * {
+    color: #ffffff !important;
+}

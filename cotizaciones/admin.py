@@ -23,7 +23,6 @@ class DetalleCotizacionInline(admin.TabularInline):
     subtotal_display.short_description = 'Subtotal'
 
 
-@admin.register(Cotizacion)
 class CotizacionAdmin(admin.ModelAdmin):
     list_display = ['id_colored', 'cliente_colored', 'fecha_colored', 'estado_colored', 'total_colored', 'num_items_colored', 'acciones_list']
     list_filter = ['estado', 'fecha_solicitud']
@@ -144,3 +143,20 @@ class CotizacionAdmin(admin.ModelAdmin):
             f'${total:,.2f}</span>'
         )
     total_display.short_description = 'Total Final'
+
+
+class DetalleCotizacionAdmin(admin.ModelAdmin):
+    list_display = ('cotizacion', 'producto', 'cantidad', 'precio_unitario', 'subtotal_display')
+    list_filter = ('cotizacion__estado',)
+    search_fields = ('cotizacion__id', 'producto__nombre')
+    
+    def subtotal_display(self, obj):
+        """Muestra el subtotal calculado"""
+        from decimal import Decimal
+        if obj.precio_unitario and obj.cantidad:
+            subtotal = obj.precio_unitario * obj.cantidad
+            if obj.cotizacion.incluir_iva:
+                subtotal = subtotal * Decimal('1.19')
+            return f"${subtotal:,.2f}"
+        return "---"
+    subtotal_display.short_description = 'Subtotal'

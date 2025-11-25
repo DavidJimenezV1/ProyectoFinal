@@ -1,3 +1,4 @@
 from django.contrib import admin
 
-# Register your models here.
+# Los productos se gestionan desde 'inventario'
+# Este archivo existe solo para mantener la estructura de la app

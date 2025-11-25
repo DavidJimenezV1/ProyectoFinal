@@ -6,6 +6,7 @@ class ImagenProductoInline(admin.TabularInline):
     extra = 1
     fields = ['imagen', 'es_principal', 'orden', 'titulo']
 
+@admin.register(Producto)
 class ProductoAdmin(admin.ModelAdmin):
     list_display = ('nombre', 'codigo', 'precio', 'stock', 'categoria')
     search_fields = ('nombre', 'codigo', 'descripcion')
@@ -27,5 +28,7 @@ class ImagenProductoAdmin(admin.ModelAdmin):
     search_fields = ('producto__nombre', 'titulo')
     list_editable = ('es_principal', 'orden', 'titulo')
 
-admin.site.register(Producto, ProductoAdmin)
-admin.site.register(Categoria)
+@admin.register(Categoria)
+class CategoriaAdmin(admin.ModelAdmin):
+    list_display = ('nombre',)
+    search_fields = ('nombre',)

@@ -1,49 +1,15 @@
-{% load static %}{% load i18n %}<!DOCTYPE html>
-<html lang="{{ LANGUAGE_CODE|default:'es' }}">
-<head>
-    <title>{% block title %}Panel Admin{% endblock %}</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    
-    <!-- ==================== CSS DJANGO POR DEFECTO ==================== -->
-    {% block extrastyle %}<link rel="stylesheet" href="{% static 'admin/css/base.css' %}">{% endblock %}
-    
-    <!-- ==================== CSS UNIFICADO PERSONALIZADO ==================== -->
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}{{ block.super }} - Tejos Olímpica{% endblock %}
+
+{% block extrastyle %}
+    {{ block.super }}
     <link rel="stylesheet" href="{% static 'css/admin_unified.css' %}">
-    
+    <link rel="stylesheet" href="{% static 'css/admin_dark.css' %}">
+    <link rel="stylesheet" href="{% static 'css/admin_resumen_fix.css' %}">
     <style>
-        /* ==================== RESET TOTAL ==================== */
-        * {
-            margin: 0 !important;
-            padding: 0 !important;
-            box-sizing: border-box !important;
-        }
-
-        html, body {
-            width: 100% !important;
-            height: 100% !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            overflow-x: hidden !important;
-        }
-
-        /* ==================== OCULTAR SIDEBAR ==================== */
-        #sidebar,
-        [id*="sidebar"],
-        .sidebar,
-        [class*="sidebar"],
-        nav.sidebar {
-            display: none !important;
-            visibility: hidden !important;
-            width: 0 !important;
-            height: 0 !important;
-            overflow: hidden !important;
-            position: absolute !important;
-            left: -9999px !important;
-            top: -9999px !important;
-        }
-
-        /* ==================== NAVBAR PERSONALIZADA ==================== */
+        /* ==================== HEADER PERSONALIZADO ==================== */
         #header {
             background: linear-gradient(90deg, #1e3c72 0%, #2a5298 50%, #667eea 100%) !important;
             padding: 15px 40px !important;
@@ -54,8 +20,6 @@
             border-bottom: 4px solid #fbbf24 !important;
             width: 100% !important;
             margin: 0 !important;
-            position: relative !important;
-            z-index: 100 !important;
         }
 
         #header h1 {
@@ -90,224 +54,232 @@
             color: #ffffff !important;
             font-size: 13px !important;
             font-weight: 900 !important;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
         }
 
         #user-tools a {
-            color: #ffffff !important;
-            font-weight: 900 !important;
-            font-size: 13px !important;
-            padding: 10px 18px !important;
-            border-radius: 8px !important;
-            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25) !important;
+            color: #fbbf24 !important;
             text-decoration: none !important;
-            display: inline-flex !important;
-            align-items: center !important;
-            gap: 6px !important;
+            padding: 8px 16px !important;
+            border-radius: 6px !important;
+            background: rgba(251, 191, 36, 0.1) !important;
+            transition: all 0.3s ease !important;
+            font-weight: 600 !important;
         }
 
         #user-tools a:hover {
-            transform: translateY(-3px) !important;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3) !important;
+            background: rgba(251, 191, 36, 0.2) !important;
         }
 
-        /* Cambiar contraseña */
-        #user-tools a[href*="password_change"] {
-            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+        /* ==================== SIDEBAR - OCULTAR ==================== */
+        #sidebar,
+        [id*="sidebar"],
+        .sidebar,
+        [class*="sidebar"],
+        nav.sidebar {
+            display: none !important;
         }
 
-        #user-tools a[href*="password_change"]:hover {
-            box-shadow: 0 8px 20px rgba(245, 158, 11, 0.5) !important;
+        /* ==================== CONTENIDO A ANCHO COMPLETO ==================== */
+        #container {
+            margin-left: 0 !important;
         }
 
-        /* Cerrar sesión */
-        #user-tools a[href*="logout"] {
-            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+        /* ==================== RESTO DE COLUMNAS - SIN FONDO MORADO ==================== */
+        /* Quitar el fondo morado de todas las celdas */
+        tr[style*="background-color: rgb(102"],
+        tr[style*="background-color: rgb(118"],
+        tr[style*="background: rgb(102"],
+        tr[style*="background: rgb(118"],
+        tr[style*="background-color: #667eea"],
+        tr[style*="background-color: #764ba2"],
+        tr[style*="background: #667eea"],
+        tr[style*="background: #764ba2"] {
+            background-color: transparent !important;
+            background: transparent !important;
         }
 
-        #user-tools a[href*="logout"]:hover {
-            box-shadow: 0 8px 20px rgba(239, 68, 68, 0.5) !important;
+        /* Celdas del resto (no primera columna) - fondo transparente, texto normal */
+        tr[style*="background-color: rgb(102"] td:not(:first-child),
+        tr[style*="background-color: rgb(118"] td:not(:first-child),
+        tr[style*="background: rgb(102"] td:not(:first-child),
+        tr[style*="background: rgb(118"] td:not(:first-child),
+        tr[style*="background-color: #667eea"] td:not(:first-child),
+        tr[style*="background-color: #764ba2"] td:not(:first-child),
+        tr[style*="background: #667eea"] td:not(:first-child),
+        tr[style*="background: #764ba2"] td:not(:first-child) {
+            background-color: transparent !important;
+            background: transparent !important;
+            color: #333333 !important;
         }
 
-        /* ==================== BOTÓN VOLVER AL PANEL ==================== */
-        .admin-header-top {
-            background: linear-gradient(135deg, rgba(26, 26, 46, 0.95) 0%, rgba(22, 33, 62, 0.95) 100%);
-            padding: 20px 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid rgba(251, 187, 36, 0.4);
-            gap: 20px;
-            position: relative;
-            z-index: 99;
+        /* ==================== HEADERS - BLANCO SOBRE MORADO ==================== */
+        thead,
+        thead tr,
+        thead th,
+        th {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%) !important;
+            color: #ffffff !important;
+            font-weight: 900 !important;
         }
 
-        .admin-header-top h2 {
-            color: #fbbf24;
-            margin: 0;
-            font-size: 18px;
-            font-weight: 900;
-            flex: 1;
+        /* ==================== CELDAS NORMALES ==================== */
+        td {
+            color: #333333 !important;
+            background: transparent !important;
         }
 
-        .back-to-dashboard-btn {
-            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%) !important;
-            color: #1a1a2e !important;
-            padding: 12px 28px !important;
+        /* Filas alternadas */
+        tbody tr:nth-child(even) {
+            background-color: #f9fafb !important;
+        }
+
+        tbody tr:nth-child(odd) {
+            background-color: white !important;
+        }
+
+        tbody tr:hover {
+            background-color: rgba(102, 126, 234, 0.1) !important;
+        }
+
+        /* ==================== BREADCRUMBS ==================== */
+        .breadcrumbs {
+            background: rgba(255, 255, 255, 0.95) !important;
+            border-left: 5px solid #FF6B35 !important;
+            padding: 18px 24px !important;
+            border-radius: 12px !important;
+            margin-bottom: 30px !important;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
+            font-size: 14px !important;
+            font-weight: 600 !important;
+            color: #2c3e50 !important;
+        }
+
+        /* ==================== MÓDULOS ==================== */
+        .module {
+            background: rgba(255, 255, 255, 0.98) !important;
+            border-radius: 16px !important;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
+            margin-bottom: 30px !important;
+            overflow: hidden !important;
+            border-top: 5px solid #FF6B35 !important;
+        }
+
+        .module h2 {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%) !important;
+            color: white !important;
+            margin: 0 !important;
+            padding: 18px 24px !important;
+            font-size: 16px !important;
+            font-weight: 900 !important;
+        }
+
+        /* ==================== BOTONES ==================== */
+        .button,
+        input[type="submit"],
+        input[type="button"],
+        input[type="reset"],
+        button,
+        a.button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+            color: #ffffff !important;
+            border: none !important;
+            padding: 14px 28px !important;
             border-radius: 10px !important;
-            text-decoration: none !important;
+            cursor: pointer !important;
             font-weight: 900 !important;
             font-size: 14px !important;
-            border: 2px solid transparent !important;
-            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
-            display: inline-flex !important;
-            align-items: center !important;
-            gap: 8px !important;
-            box-shadow: 0 6px 15px rgba(251, 191, 36, 0.4) !important;
-            cursor: pointer !important;
+            transition: all 0.3s ease !important;
         }
 
-        .back-to-dashboard-btn:hover {
-            background: linear-gradient(135deg, #fcd34d 0%, #fbbf24 100%) !important;
-            box-shadow: 0 10px 25px rgba(251, 191, 36, 0.6) !important;
+        .button:hover,
+        input[type="submit"]:hover,
+        input[type="button"]:hover,
+        input[type="reset"]:hover,
+        button:hover,
+        a.button:hover {
             transform: translateY(-3px) !important;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5) !important;
         }
 
-        /* ==================== CONTENEDOR PRINCIPAL ==================== */
-        #container {
-            display: block !important;
-            width: 100% !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            margin-left: 0 !important;
-            grid-template-columns: 1fr !important;
+        /* ==================== MENSAJES ==================== */
+        .messagelist li {
+            padding: 18px 24px !important;
+            border-radius: 12px !important;
+            margin-bottom: 15px !important;
+            font-weight: 700 !important;
+            border-left: 5px solid !important;
         }
 
-        #main-content {
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%) !important;
-            padding: 40px !important;
-            width: 100% !important;
-            margin: 0 !important;
-            margin-left: 0 !important;
-            min-height: calc(100vh - 150px) !important;
+        .messagelist .success {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%) !important;
+            color: #1e8449 !important;
+            border-left-color: #27AE60 !important;
         }
 
-        /* ==================== FOOTER ==================== */
-        footer {
-            background: #0f1419;
-            color: #ffffff;
-            text-align: center;
-            padding: 20px;
-            border-top: 2px solid #fbbf24;
-            font-size: 12px;
-            margin-top: 40px;
+        .messagelist .error {
+            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%) !important;
+            color: #c0392b !important;
+            border-left-color: #E74C3C !important;
         }
 
-        /* ==================== RESPONSIVE ==================== */
-        @media (max-width: 768px) {
-            #header {
-                flex-direction: column;
-                gap: 15px;
-                align-items: flex-start;
-            }
-
-            #user-tools {
-                width: 100%;
-                justify-content: space-around;
-            }
-
-            #main-content {
-                padding: 20px !important;
-            }
-
-            #header h1 {
-                font-size: 14px !important;
-            }
-
-            #user-tools a {
-                padding: 8px 12px !important;
-                font-size: 11px !important;
-            }
-
-            .admin-header-top {
-                padding: 15px 20px !important;
-                flex-direction: column !important;
-                gap: 10px !important;
-            }
-
-            .back-to-dashboard-btn {
-                width: 100% !important;
-                justify-content: center !important;
-                padding: 10px 20px !important;
-                font-size: 13px !important;
-            }
+        .messagelist .warning {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%) !important;
+            color: #856404 !important;
+            border-left-color: #F1C40F !important;
         }
 
-        @media (max-width: 480px) {
-            #header {
-                padding: 10px 15px !important;
-            }
+        .messagelist .info {
+            background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%) !important;
+            color: #0c5460 !important;
+            border-left-color: #1ABC9C !important;
+        }
 
-            #header h1 {
-                font-size: 12px !important;
-            }
-
-            #main-content {
-                padding: 15px !important;
-                min-height: calc(100vh - 120px) !important;
-            }
-
-            .admin-header-top {
-                padding: 12px 15px !important;
-            }
+        /* ==================== FILAS CON FONDO MORADO - TEXTO BLANCO ==================== */
+        /* Todas las celdas de filas moradas = BLANCO */
+        tr[style*="background-color: rgb(102"] td,
+        tr[style*="background-color: rgb(118"] td,
+        tr[style*="background: rgb(102"] td,
+        tr[style*="background: rgb(118"] td,
+        tr[style*="background-color: #667eea"] td,
+        tr[style*="background-color: #764ba2"] td,
+        tr[style*="background: #667eea"] td,
+        tr[style*="background: #764ba2"] td {
+            color: #ffffff !important;
+            font-weight: 900 !important;
         }
     </style>
-</head>
-<body class="{% if is_popup %}popup {% endif %}{% block bodyclass %}{% endblock %}">
+{% endblock %}
 
-    <!-- NAVBAR PERSONALIZADA -->
-    <div id="header">
-        <h1>🏆 Tejos Olímpica - Administración</h1>
-        <div id="user-tools">
-            <strong>{{ user.get_full_name|default:user.username }}</strong>
-            <a href="/admin/password_change/">🔐 Cambiar Contraseña</a>
-            <a href="/admin/logout/">🚪 Cerrar Sesión</a>
-        </div>
-    </div>
-
-    <!-- BOTÓN VOLVER AL PANEL (SOLO SI NO ES LA PÁGINA PRINCIPAL) -->
-    {% if request.resolver_match.url_name != 'index' %}
-        <div class="admin-header-top">
-            <h2>{% block content_title %}{% endblock %}</h2>
-            <a href="/admin/" class="back-to-dashboard-btn">
-                🏠 Volver al Panel Admin
-            </a>
-        </div>
-    {% endif %}
-
-    <!-- CONTENIDO PRINCIPAL -->
-    <div id="container">
-        <div id="main-content">
-            {% block messages %}
-                {% if messages %}
-                    <ul class="messagelist">
-                        {% for message in messages %}
-                            <li class="{{ message.tags }}">{{ message }}</li>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
-            {% endblock %}
-
-            {% block content %}{% endblock %}
-        </div>
-    </div>
-
-    <!-- FOOTER -->
-    <footer>
-        <p>&copy; 2025 Tejos Olímpica | Administración Inteligente</p>
-    </footer>
-
-</body>
-</html>
+{% block content %}
+    {{ block.super }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Función para aplicar estilos a filas moradas
+            function applyWhiteTextToRows() {
+                // Buscar todas las filas con fondo morado
+                const rows = document.querySelectorAll('tbody tr[style*="background"]');
+                rows.forEach(row => {
+                    const cells = row.querySelectorAll('td');
+                    cells.forEach(cell => {
+                        // Aplicar estilo directo a la celda
+                        cell.style.color = '#ffffff';
+                        cell.style.fontWeight = '900';
+                        
+                        // Aplicar a todos los elementos dentro
+                        const allElements = cell.querySelectorAll('*');
+                        allElements.forEach(el => {
+                            el.style.color = '#ffffff';
+                            el.style.fontWeight = '900';
+                        });
+                    });
+                });
+            }
+            
+            // Ejecutar al cargar
+            applyWhiteTextToRows();
+            
+            // Ejecutar cada 500ms por si hay cambios dinámicos
+            setInterval(applyWhiteTextToRows, 500);
+        });
+    </script>
+{% endblock %}

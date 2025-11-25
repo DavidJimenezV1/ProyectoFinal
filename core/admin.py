@@ -12,45 +12,7 @@ from pedidos.models import Pedido
 from usuarios.models import Usuario
 from cotizaciones.models import Cotizacion, DetalleCotizacion
 from ventas.models import Factura, ItemFactura
-from auditorias.models import (
-    AuditLog, HistorialProducto, HistorialPedido,
-    HistorialCotizacion, HistorialFactura, HistorialCliente, HistorialCategoria
-)
 from core.utils import formato_pesos
-
-
-# ==================== SITIO DE ADMINISTRACIÓN PERSONALIZADO ====================
-
-class SitioAdminPersonalizado(admin.AdminSite):
-    """
-    Sitio de administración personalizado con datos reales
-    """
-    site_header = "🏆 Tejos Olímpica - Administración"
-    site_title = "Panel de Administración"
-    index_title = "Panel de Control"
-    
-    def index(self, request, extra_context=None):
-        """
-        Reemplaza el índice del admin con datos reales de la BD
-        """
-        extra_context = extra_context or {}
-        
-        # Obtener estadísticas reales de la BD
-        estadisticas = {
-            'total_productos': Producto.objects.count(),
-            'pedidos_pendientes': Pedido.objects.filter(estado='pendiente').count(),
-            'total_clientes': Usuario.objects.filter(is_staff=False).count(),
-            'ingresos_totales': sum(pedido.get_total() for pedido in Pedido.objects.filter(estado='completado')) or 0,
-            'total_categorias': Categoria.objects.count(),
-            'cotizaciones_pendientes': Cotizacion.objects.filter(estado='pendiente').count(),
-        }
-        
-        extra_context.update(estadisticas)
-        return super().index(request, extra_context)
-
-
-# ✅ ACTIVAR EL SITIO PERSONALIZADO
-admin.site = SitioAdminPersonalizado(name='admin')
 
 
 # ==================== COTIZACIONES ====================
@@ -299,23 +261,3 @@ class AdminItemFactura(admin.ModelAdmin):
     autocomplete_fields = ['producto', 'factura']
 
 
-admin.site.register(Factura, AdminFactura)
-admin.site.register(ItemFactura, AdminItemFactura)
-
-
-# ==================== AUDITORÍA - IMPORTAR DESDE auditorias/admin.py ====================
-
-from auditorias.admin import (
-    AdminRegistroAuditoria, AdminHistorialProducto, AdminHistorialPedido,
-    AdminHistorialCotizacion, AdminHistorialFactura, AdminHistorialCliente,
-    AdminHistorialCategoria
-)
-
-# Registrar los modelos de auditoría
-admin.site.register(AuditLog, AdminRegistroAuditoria)
-admin.site.register(HistorialProducto, AdminHistorialProducto)
-admin.site.register(HistorialPedido, AdminHistorialPedido)
-admin.site.register(HistorialCotizacion, AdminHistorialCotizacion)
-admin.site.register(HistorialFactura, AdminHistorialFactura)
-admin.site.register(HistorialCliente, AdminHistorialCliente)
-admin.site.register(HistorialCategoria, AdminHistorialCategoria)
